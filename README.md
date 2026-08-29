@@ -2,9 +2,11 @@
 Where: Carl Emily Fuchs Institute for Microelectronics ([CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim))
 What: mm Wave Chamber
 Why: To Automatize data collection through the azimuth and vertical planes to generate 3D field patterns. 
+<br>
+This program made use of code inspired by [SitwalaM](https://github.com/SitwalaM/cefim_vna_beagle). 
 
 # Installation of Program:
-Cant yet. 
+Can't yet. 
 
 # Brief workings of program
 Nothing yet. 
