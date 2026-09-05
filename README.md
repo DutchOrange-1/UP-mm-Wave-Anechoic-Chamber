@@ -17,3 +17,9 @@ Nothing yet.
 - Library of Pre calibrated horn antennas. 
 - Simple exporting of all data files as one large ZIP. 
 
+# Motor controls
+Current the motors can be controlled / tested using [XILab](https://files.xisupport.com/Software.en.html). This is the GUI of [libximc](https://doc.xisupport.com/en/8smc5-usb/8SMCn-USB/Programming.html). This should be easily implemented with their [python section](https://doc.xisupport.com/en/8smc5-usb/8SMCn-USB/Programming/Programming_guide/Working_in_Python.html), which is made for the **8SMC5**, but we have the **8SMC4**, the [docs](https://doc.xisupport.com/en/8smc5-usb/8SMCn-USB/Programming/8SMC1-USBhF_software_compatibility.html) do discuss that they should be compatible. Follow the [installation](https://doc.xisupport.com/en/8smc5-usb/8SMCn-USB/Programming/Programming_guide/Working_in_Python.html) of it. 
+<br>
+
+Example scripts can be found [here](https://doc.xisupport.com/en/8smc5-usb/8SMCn-USB/Programming/XILab_scripts.html). Several examples can be found [here](https://github.com/Standa-Optomechanics/libximc/blob/dev-3.0/examples/test_Python/standardtest/testpython.py). 
+
