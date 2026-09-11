@@ -5,11 +5,13 @@ import time
 import libximc.highlevel as ximc
 
 # Define ports of the motors being used.
-azimuth = r"xi-com:\\.\COM12"
-horizontal = r"xi-com:\\.\COM13"
+elevation = r"xi-com:\\.\COM12"
+azimuth = r"xi-com:\\.\COM13"
+
+# elevation_axis = ximc.Axis(elevation)
 
 azimuth_axis = ximc.Axis(azimuth)
-# horizontal_axis =
+azimuth_axis.open_device()
 
 position = azimuth_axis.get_position()
 print("Initial position:", position.Position)
@@ -28,8 +30,8 @@ print("Final position:", position.Position)
 azimuth_axis.close_device()
 
 
-exit()
-time.sleep(10)
+# exit()
+time.sleep(5)
 axis = azimuth_axis
 # Now to move by a set amount - in mm
 #  Look into stepping / shifting it by using angles insted !
