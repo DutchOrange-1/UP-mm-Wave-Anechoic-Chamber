@@ -5,14 +5,22 @@
 # One issue will be the initial homing, as this must be repeatable. Different antennas will make it weigh different
 # amounts. Hence before every test, a calibration should be done.
 
-# The azimuth has a resolution of 0.01 degrees per step.
-# The elevation has a resolution of 0.0607 deg / step.
-
 import logging
 import pathlib
 import os
 import time
 import libximc.highlevel as ximc
+
+# The azimuth has a resolution of 0.01 degrees per step.
+# The elevation has a resolution of 0.0607 deg / step.
+# Note the ^-1 to change the units to steps / deg to make later math easier.
+
+elev_angle_step_res = (0.060714) ^ -1
+azi_angle_step_res = (0.01) ^ -1
+
+# Shake time wait (Seconds):
+wobble_tim_elev = 0.1
+wobble_tim_azi = 0.01
 
 
 # Logging:
@@ -28,17 +36,17 @@ logging.basicConfig(
 elev_points = 10
 azi_points = 30
 
-elev_start = 10
+elev_start = 0
 elev_end = 90
 azi_start = 0
 azi_end = 180
 
 ########################
 # Sanity check of inputs.
-if (elev_start < 0 or elev_start > 90) or elev_start < elev_end:
+if elev_start < 0 or elev_start > 90 or elev_start < elev_end:
     logging.error("Error with elevation settings. < 0 or > 90")
     exit()
-elif (azi_start < 0 or azi_start > 180) or azi_start < azi_end:
+elif azi_start < 0 or azi_start > 180 or azi_start < azi_end:
     logging.error("Error with azimuth settings. < 0 or > 180")
     exit()
 elif elev_points % (elev_start - elev_end) == 1:
@@ -88,15 +96,32 @@ elev_axis.command_home
 elev_axis.command_wait_for_stop(100)
 elev_axis.command_zero
 logging.info("Done Homing Elevation")
+progress = 0
+
 
 for elv_pos in elev_array:
-    # print(elv_pos)
+    # Move elevation.
+    elev_axis.command_move(elv_pos * elev_angle_step_res)
+    elev_axis.command_wait_for_stop(100)
+    # This is to allow the long boom arm to stop wobbling, as this is one of the biggest things
+    # that would result in imprecise data.
+    time.sleep(wobble_tim_elev)
+
     for azi_pos in azi_array:
-        print(azi_pos)
+        progress += 1
+        # Move Azimuth
+        azi_axis.command_move(azi_pos * azi_angle_step_res)
+        azi_axis.command_wait_for_stop(100)
+        time.sleep(wobble_tim_azi)
+        #####
+        # TAKE SAMPLE HERE !!!! - This will take time for the VN to Sweep - Func would be called here.
+        #####
+        logging.info("Progress: "+str(100*progress/data_points))
 
 
-# Close devices
+# Close devices - now done
 azi_axis.close_device()
 elev_axis.close_device()
 
 # Save data ?
+# Need to decide on export type - Simple webserver to access files ?
