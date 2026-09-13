@@ -5,6 +5,9 @@
 # One issue will be the initial homing, as this must be repeatable. Different antennas will make it weigh different
 # amounts. Hence before every test, a calibration should be done.
 
+# The azimuth has a resolution of 0.01 degrees per step.
+# The elevation has a resolution of 0.0607 deg / step.
+
 import logging
 import pathlib
 import os
@@ -25,23 +28,25 @@ logging.basicConfig(
 elev_points = 10
 azi_points = 30
 
-elev_start = 0
+elev_start = 10
 elev_end = 90
 azi_start = 0
 azi_end = 180
 
 ########################
 # Sanity check of inputs.
-if (elev_start < 0 or elev_start > 90) and elev_start > elev_end:
-    print("Error with elevation settings. < 0 or > 90")
+if (elev_start < 0 or elev_start > 90) or elev_start < elev_end:
+    logging.error("Error with elevation settings. < 0 or > 90")
     exit()
-elif (azi_start < 0 or azi_start > 180) and azi_start > azi_end:
-    print("Error with azimuth settings. < 0 or > 180")
+elif (azi_start < 0 or azi_start > 180) or azi_start < azi_end:
+    logging.error("Error with azimuth settings. < 0 or > 180")
     exit()
 elif elev_points % (elev_start - elev_end) == 1:
-    print("Give number of points of for Elevation wrong - must be a multiple")
+    logging.error(
+        "Give number of points of for Elevation wrong - must be a multiple")
 elif azi_points % (azi_start - azi_end) == 1:
-    print("Give number of points of for Elevation wrong - must be a multiple")
+    logging.error(
+        "Give number of points of for Azimuth wrong - must be a multiple")
 
 #######################
 # Setup motors:
@@ -55,30 +60,34 @@ elev_axis = ximc.Axis(elev)
 #####################
 # Start Data Collection
 azi_array = list(range(azi_start, azi_end+azi_points, azi_points))
-print("Azimuth points: " + str(azi_array))
+logging.info("Azimuth points: " + str(azi_array))
 
 elev_array = list(range(elev_start, elev_end+elev_points, elev_points))
-print("Elevation points: " + str(elev_array))
+logging.info("Elevation points: " + str(elev_array))
 
 data_points = len(azi_array) * len(elev_array)
-print("Data Points: " + str(data_points))
-
+logging.info("Data Points: " + str(data_points))
 
 ###############
 # Positioning:
 azi_axis.open_device()
 elev_axis.open_device()
 logging.info("Initial position - azimuth:", azi_axis.get_position().Position)
-# print("Initial position - Elevation:", elev_axis.get_position().Position)
+logging.info("Initial position - Elevation:",
+             elev_axis.get_position().Position)
 
 
 # Homing
-# What is not home ?
-print("Homing....")
+logging.info("Homing....")
 azi_axis.command_home
 azi_axis.command_wait_for_stop(100)
-print("Done with Azimuth")
+azi_axis.command_zero
+logging.info("Done Homing Azimuth")
 
+elev_axis.command_home
+elev_axis.command_wait_for_stop(100)
+elev_axis.command_zero
+logging.info("Done Homing Elevation")
 
 for elv_pos in elev_array:
     # print(elv_pos)
