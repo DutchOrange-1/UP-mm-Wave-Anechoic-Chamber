@@ -8,6 +8,7 @@
 import logging
 import pathlib
 import os
+import numpy as np
 import time
 import libximc.highlevel as ximc
 
@@ -67,10 +68,10 @@ elev_axis = ximc.Axis(elev)
 
 #####################
 # Start Data Collection
-azi_array = list(range(azi_start, azi_end+azi_points, azi_points))
+azi_array = np.linspace(azi_start, azi_end, azi_points)
 logging.info("Azimuth points: " + str(azi_array))
 
-elev_array = list(range(elev_start, elev_end+elev_points, elev_points))
+elev_array = np.linspace(elev_start, elev_end, elev_points)
 logging.info("Elevation points: " + str(elev_array))
 
 data_points = len(azi_array) * len(elev_array)
@@ -80,45 +81,63 @@ logging.info("Data Points: " + str(data_points))
 # Positioning:
 azi_axis.open_device()
 elev_axis.open_device()
-logging.info("Initial position - azimuth:", azi_axis.get_position().Position)
-logging.info("Initial position - Elevation:",
-             elev_axis.get_position().Position)
-
+logging.info("Initial position - azimuth: %s",
+             str(azi_axis.get_position().Position))
+logging.info("Initial position - Elevation: %s",
+             str(elev_axis.get_position().Position))
+time.sleep(5)
 
 # Homing
-logging.info("Homing....")
-azi_axis.command_home()
-azi_axis.command_wait_for_stop(100)
-azi_axis.command_zero()
-logging.info("Done Homing Azimuth")
+try:
+    logging.info("Homing....")
+    azi_axis.command_home()
+    azi_axis.command_wait_for_stop(100)
+    azi_axis.command_zero()
+    logging.info("Done Homing Azimuth")
 
-logging.info("Homing....")
-elev_axis.command_home()
-elev_axis.command_wait_for_stop(100)
-elev_axis.command_zero()
-logging.info("Done Homing Elevation")
-progress = 0
-
-
-for elv_pos in elev_array:
-    # Move elevation.
-    elev_axis.command_move(elv_pos * elev_angle_step_res*-1)
+    logging.info("Homing....")
+    elev_axis.command_home()
     elev_axis.command_wait_for_stop(100)
-    # This is to allow the long boom arm to stop wobbling, as this is one of the biggest things
-    # that would result in imprecise data.
-    time.sleep(wobble_tim_elev)
+    elev_axis.command_zero()
+    logging.info("Done Homing Elevation")
+    progress = 0
 
-    for azi_pos in azi_array:
-        progress += 1
-        # Move Azimuth
-        azi_axis.command_move(azi_pos * azi_angle_step_res)
-        azi_axis.command_wait_for_stop(100)
-        time.sleep(wobble_tim_azi)
-        #####
-        # TAKE SAMPLE HERE !!!! - This will take time for the VN to Sweep - Func would be called here.
-        #####
-        logging.info("Progress: "+str(100*progress/data_points))
+    for elv_pos in elev_array:
+        # Move elevation.
+        position = int(elv_pos * elev_angle_step_res*-1)
+        print(position)
+        elev_axis.command_move(position, 0)
 
+        elev_axis.command_wait_for_stop(100)
+        # This is to allow the long boom arm to stop wobbling, as this is one of the biggest things
+        # that would result in imprecise data.
+        time.sleep(wobble_tim_elev)
+
+        for azi_pos in azi_array:
+            progress += 1
+            # Move Azimuth
+            position = azi_pos * azi_angle_step_res
+            # print(position)
+            azi_axis.command_move(int(position), 0)
+            azi_axis.command_wait_for_stop(100)
+            time.sleep(wobble_tim_azi)
+            #####
+            # TAKE SAMPLE HERE !!!! - This will take time for the VN to Sweep - Func would be called here.
+            #####
+            logging.info("Progress: "+str(100*progress/data_points) + " %")
+
+except KeyboardInterrupt:
+    logging.error("\nEMERGENCY STOP!")
+
+    try:
+        azi_axis.command_stop()
+    except Exception as e:
+        logging.error(f"Could not stop azimuth: {e}")
+
+    try:
+        elev_axis.command_stop()
+    except Exception as e:
+        logging.error(f"Could not stop elevation: {e}")
 
 # Close devices - now done
 azi_axis.close_device()
