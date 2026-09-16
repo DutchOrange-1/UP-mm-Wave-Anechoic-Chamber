@@ -22,6 +22,8 @@ azi_angle_step_res = 1/(0.01)
 # Shake time wait (Seconds):
 wobble_tim_elev = 0.1
 wobble_tim_azi = 0.01
+elevation_speed = 4  # 3 Steps per second
+azimuth_speed = 2000  # 2000/s
 
 
 # Logging:
@@ -42,6 +44,7 @@ elev_end = 90
 azi_start = 0
 azi_end = 180
 
+time_sum = 0
 ########################
 # Sanity check of inputs.
 if elev_start < 0 or elev_start > 90 or elev_start > elev_end:
@@ -81,12 +84,22 @@ logging.info("Data Points: " + str(data_points))
 # Positioning:
 azi_axis.open_device()
 elev_axis.open_device()
+
+# Get estimated time.
+time_sum += elev_points * wobble_tim_elev
+time_sum += azi_points * wobble_tim_azi
+time_sum += (elev_end - elev_start)*elev_angle_step_res / elevation_speed
+time_sum += (azi_end - azi_start) * azi_angle_step_res / azimuth_speed
+time_sum += abs(elev_axis.get_position().Position) / elevation_speed
+
+# Get current position
 logging.info("Initial position - azimuth: %s",
              str(azi_axis.get_position().Position))
 logging.info("Initial position - Elevation: %s",
              str(elev_axis.get_position().Position))
-time.sleep(5)
+logging.info("Estimated time: %.2f Minutes", time_sum/60)
 
+time.sleep(5)
 # Homing
 try:
     logging.info("Homing....")
