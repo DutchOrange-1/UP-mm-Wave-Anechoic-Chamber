@@ -15,8 +15,8 @@ import libximc.highlevel as ximc
 # The elevation has a resolution of 0.0607 deg / step.
 # Note the ^-1 to change the units to steps / deg to make later math easier.
 
-elev_angle_step_res = (0.060714) ^ -1
-azi_angle_step_res = (0.01) ^ -1
+elev_angle_step_res = 1/(0.060714)
+azi_angle_step_res = 1/(0.01)
 
 # Shake time wait (Seconds):
 wobble_tim_elev = 0.1
@@ -33,8 +33,8 @@ logging.basicConfig(
 # For now, due to unknown limits of the cables, they will be limited to 0-90 (Elevation) and
 # 0-180 for azimuth.
 # Define number of data points:
-elev_points = 10
-azi_points = 30
+elev_points = 5
+azi_points = 5
 
 elev_start = 0
 elev_end = 90
@@ -43,10 +43,10 @@ azi_end = 180
 
 ########################
 # Sanity check of inputs.
-if elev_start < 0 or elev_start > 90 or elev_start < elev_end:
+if elev_start < 0 or elev_start > 90 or elev_start > elev_end:
     logging.error("Error with elevation settings. < 0 or > 90")
     exit()
-elif azi_start < 0 or azi_start > 180 or azi_start < azi_end:
+elif azi_start < 0 or azi_start > 180 or azi_start > azi_end:
     logging.error("Error with azimuth settings. < 0 or > 180")
     exit()
 elif elev_points % (elev_start - elev_end) == 1:
@@ -87,21 +87,22 @@ logging.info("Initial position - Elevation:",
 
 # Homing
 logging.info("Homing....")
-azi_axis.command_home
+azi_axis.command_home()
 azi_axis.command_wait_for_stop(100)
-azi_axis.command_zero
+azi_axis.command_zero()
 logging.info("Done Homing Azimuth")
 
-elev_axis.command_home
+logging.info("Homing....")
+elev_axis.command_home()
 elev_axis.command_wait_for_stop(100)
-elev_axis.command_zero
+elev_axis.command_zero()
 logging.info("Done Homing Elevation")
 progress = 0
 
 
 for elv_pos in elev_array:
     # Move elevation.
-    elev_axis.command_move(elv_pos * elev_angle_step_res)
+    elev_axis.command_move(elv_pos * elev_angle_step_res*-1)
     elev_axis.command_wait_for_stop(100)
     # This is to allow the long boom arm to stop wobbling, as this is one of the biggest things
     # that would result in imprecise data.
