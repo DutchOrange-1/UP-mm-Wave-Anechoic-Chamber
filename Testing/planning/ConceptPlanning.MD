@@ -42,13 +42,13 @@ Please see the draw.io file.
 
 
 # File formatting
-The files will contain the following data:
-    - Single Freq Data point {Yellow}
-    - Target Elevation [deg] {Green}
-    - Achieved Elevation (Should be the same) [deg] {Green}
-    - Measured gain {Orange}
-    - Measured phase {Blue}
-Note that the {Magenta} shows each sample for each freq point. 
+The files will contain the following data:<br>
+    - Single Freq Data point {Yellow} <br>
+    - Target Elevation [deg] {Green}<br>
+    - Achieved Elevation (Should be the same) [deg] {Green}<br>
+    - Measured gain {Orange}<br>
+    - Measured phase {Blue}<br>
+Note that the {Magenta} shows each sample for each freq point. <br>
 Something like this:
 
 <br>
