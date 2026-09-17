@@ -40,6 +40,34 @@ Please see the draw.io file.
 <img src="./images/GeneralCodeFlow.png" alt="Code" height="600">
 <br>
 
+Code breakdown:
+## Motors:
+- Full scan code
+- Azimuth only
+- Elevation only
+- Calibration code ? 
+
+## SCPI / VNA
+- Send settings / parameters
+    - Freq Start
+    - Freq End
+    - Number of freq points
+    - Averaging amount 
+    - IF freq ? 
+    - Channels ? 
+
+- Other
+    - Start / Trigger sweep of points
+    - Collect / Download data from VNA -> PC
+ 
+## GUI
+- Set parameters
+- Download data
+- Perform calibration
+    - Standard horn calab
+    - Phase correction calab
+    - Azimuth plane calab
+    - Elevation boom calab
 
 # File formatting
 The files will contain the following data:<br>
