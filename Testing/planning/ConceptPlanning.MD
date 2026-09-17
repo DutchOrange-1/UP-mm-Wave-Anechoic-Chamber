@@ -35,6 +35,11 @@ This includes:
 WIP - Will get one tomorrow. Trying to get a photo of **ANT Tester** from SAAB.   
 
 # General flow of code
+Please see the draw.io file. 
+<br>
+<img src="./images/GeneralCodeFlow.png" alt="Code" height="600">
+<br>
+
 
 # File formatting
 The files will contain the following data:
@@ -68,5 +73,6 @@ While the measurement is being taken, it might be good to add a live view:
 <br>
 
 This view, being a function of Freq (y) and angle of azimuth (x) and then the realized gain (Heat Map) shows a lot of quick information and any issues. This shows the general frequency response, the directivety, lobes, nulls, and in the case of this image leakage can be seen on the left, large lobes at lower frequencies, and near the end of the freq sweep there is a shift in the directivety, showing that the horn being measured is not symmetrical. This was a X-Band horn, hence 16 GHz is out of its operating range.  
+
 
 
