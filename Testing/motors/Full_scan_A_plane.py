@@ -33,7 +33,7 @@ logging.basicConfig(
 # For now, due to unknown limits of the cables, they will be limited to 0-90 (Elevation) and
 # 0-180 for azimuth.
 # Define number of data points:
-elev_points = 5
+elev_points = 3
 # Define the type of measurement:
 type = 'E'  # E for E plane - Gets both Co and Cross pol
 # type = 'ECO' # E plane - Cross only
@@ -53,7 +53,7 @@ elev_axis = ximc.Axis(elev)
 #######
 ###########################
 progress = 0
-data_points = 0
+data_points = elev_points
 
 
 def homing():
@@ -74,7 +74,8 @@ def elv_mov_up(positions):
     # Assuming starting from 0
     elev_axis.command_move(0, 0)
     for pos in positions:
-        position = int(pos / elev_angle_step_res)
+        logging.info("Moving to: %.2f ", pos)
+        position = int(pos * elev_angle_step_res * -1)
         elev_axis.command_move(position, 0)
         elev_axis.command_wait_for_stop(100)
         time.sleep(wobble_tim_elev)
@@ -86,7 +87,8 @@ def elv_mov_down(positions):
     positions = positions[::-1]
     # Assuming starting from 90, or close to it, will start moving down from last spot
     for pos in positions:
-        position = int(pos / elev_angle_step_res)
+        logging.info("Moving to: %.2f ", pos)
+        position = int(pos * elev_angle_step_res * -1)
         elev_axis.command_move(position, 0)
         elev_axis.command_wait_for_stop(100)
         time.sleep(wobble_tim_elev)
@@ -103,34 +105,51 @@ def mov_azi(pos):
 def take_sample():
     global progress
     progress += 1
+    # print("data_points (take sample): " + str(data_points))
     logging.info("Progress: "+str(100*progress/data_points) + " %")
     logging.info("Taking Sample...")
 
 
+def time_estimate(elev_points, azi_rotations=1):
+    time_sum = 0
+    # Get estimated time.
+    time_sum += data_points * wobble_tim_elev
+    time_sum += azi_rotations * wobble_tim_azi
+    # For calibration
+    time_sum += abs(elev_axis.get_position().Position) / elevation_speed
+    # Then add time for the sweep:
+    time_sum += 180 * azi_rotations / azimuth_speed
+
+    logging.info("Estimated time: %.2f Minutes", time_sum/60)
+
+
 def scan_AUT_CO_CROSS(elev_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
+    """
+    Does co and cross pol
+
+    Parameters:
+    elev_points=9,
+    pos1=0,
+    pos2=180,
+    pos3=0,
+    pos4=0.
+    """
+    global data_points
+    data_points = elev_points*4
 
     try:
-
-        time_sum = 0
 
         ###############
         # Positioning:
         azi_axis.open_device()
         elev_axis.open_device()
 
-        # Get estimated time.
-        time_sum += elev_points * wobble_tim_elev * 2 * 2
-        time_sum += 4 * wobble_tim_azi
-        time_sum += abs(elev_axis.get_position().Position) / elevation_speed
-        # Then add time for the sweep:
-        time_sum += 180 * 2 / elevation_speed
-
         # Get current position
         logging.info("Initial position - azimuth: %s",
                      str(azi_axis.get_position().Position))
         logging.info("Initial position - Elevation: %s",
                      str(elev_axis.get_position().Position))
-        logging.info("Estimated time: %.2f Minutes", time_sum/60)
+        time_estimate(elev_points, azi_rotations=4)
 
         time.sleep(5)
         # Homing
@@ -138,7 +157,6 @@ def scan_AUT_CO_CROSS(elev_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
 
         elev_positions = np.linspace(0, 90, elev_points)
         print("Positions : " + str(elev_positions))
-        data_points = elev_points * 2
 
         #####################################
         # Start Taking Measurements
@@ -148,6 +166,14 @@ def scan_AUT_CO_CROSS(elev_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
 
         # For Pos2
         mov_azi(pos2)
+        elv_mov_down(elev_positions)
+
+        # For Pos3
+        mov_azi(pos3)
+        elv_mov_up(elev_positions)
+
+        # For Pos4
+        mov_azi(pos4)
         elv_mov_down(elev_positions)
 
     except KeyboardInterrupt:
@@ -170,13 +196,14 @@ def scan_AUT_CO_CROSS(elev_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
 
 if type == 'E':
     logging.info("Doing E-Plane Co and Cross")
-    scan_AUT_CO_CROSS()
+    scan_AUT_CO_CROSS(elev_points=elev_points)
 
 elif type == 'ECO':
     logging.info("Doing E-Plane Co only")
 
 elif type == 'H':
     logging.info("Doing H-Plane Co and Cross")
+    scan_AUT_CO_CROSS()
 
 elif type == 'HCO':
     logging.info("Doing H-Plane Co only")
