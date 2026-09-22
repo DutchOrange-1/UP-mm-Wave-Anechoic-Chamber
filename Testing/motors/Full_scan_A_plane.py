@@ -196,7 +196,8 @@ def scan_AUT_CO_CROSS(elev_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
 
 if type == 'E':
     logging.info("Doing E-Plane Co and Cross")
-    scan_AUT_CO_CROSS(elev_points=elev_points)
+    scan_AUT_CO_CROSS(elev_points=elev_points, pos1=0,
+                      pos2=180, pos3=90, pos4=270)
 
 elif type == 'ECO':
     logging.info("Doing E-Plane Co only")
