@@ -6,6 +6,10 @@ import os
 import numpy as np
 import time
 import libximc.highlevel as ximc
+import anritsu_vectorstar_vna_interface as vna_interface
+
+
+progress = 0
 
 
 def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=0.01,
@@ -43,6 +47,9 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
     # Note the ^-1 to change the units to steps / deg to make later math easier.
     elev_angle_step_res = 1/(0.060714)
     azi_angle_step_res = 1/(0.01)
+
+    global progress
+    progress = 0
 
     # Logging:
     logging.basicConfig(
@@ -118,6 +125,7 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
         # print("data_points (take sample): " + str(data_points))
         logging.info("Progress: "+str(100*progress/data_points) + " %")
         logging.info("Taking Sample...")
+        vna_interface.sweep_and_save()
 
     def time_estimate(azi_rotations):
         time_sum = 0
