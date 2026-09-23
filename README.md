@@ -5,6 +5,9 @@ Why: To Automatize data collection through the azimuth and vertical planes to ge
 <br>
 This program made use of code inspired by [SitwalaM](https://github.com/SitwalaM/cefim_vna_beagle). 
 
+# Background
+Please read this document on [planning](./Testing/planning/ConceptPlanning.MD).
+
 # Installation of Program:
 Can't yet. 
 
