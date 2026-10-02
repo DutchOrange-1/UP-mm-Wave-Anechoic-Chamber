@@ -1,4 +1,4 @@
-# mm Wave Chamber at [CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim). 
+# mmWave Chamber at [CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim). 
 Where: Carl Emily Fuchs Institute for Microelectronics ([CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim))
 What: mm Wave Chamber
 Why: To Automatize data collection through the azimuth and vertical planes to generate 3D field patterns. 
@@ -9,7 +9,13 @@ This program made use of code inspired by [SitwalaM](https://github.com/SitwalaM
 Please read this document on [planning](./Testing/planning/ConceptPlanning.MD).
 
 # Installation of Program:
-Can't yet. 
+Python, with the following packages. 
+```
+pip install \\
+ libximc \\
+pyvisa \\
+
+```
 
 # Brief workings of program
 Nothing yet. 
