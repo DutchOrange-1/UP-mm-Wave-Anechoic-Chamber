@@ -12,9 +12,8 @@ Please read this document on [planning](./Testing/planning/ConceptPlanning.MD).
 # Installation of Program:
 Python, with the following packages. 
 ```
-pip install libximc pyvisa PySide6
+python -m pip install PySide6 libximc pyvisa numpy
 ```
-and
 
 # Brief workings of program
 Nothing yet. 
@@ -33,3 +32,11 @@ Example scripts can be found [here](https://doc.xisupport.com/en/8smc5-usb/8SMCn
 In the end, this [documentation](https://colab.research.google.com/drive/1xJawpc-0CIZLDlwkefzSgWrAyBVSlaMl#scrollTo=44139bb1) will be used. <br>
 The two motors part numbers can be found through XIlab. And through testing it was found that the azimuth has a resolution of 0.01 degrees per step. and elevation has a resolution of 0.0607 deg / step. 
 
+# Common issues:
+##  DLL load failed while importing QtCore: The specified procedure could not be found.
+This implies that `Windows cannot load the Qt6 native DLL correctly`. Or in other words a `Windows DLL dependency conflict.`
+<br>
+The fix seems to be, to make a venv from miniconda3 only:
+```
+C:\Users\me\miniconda3\python.exe -m venv .venv
+```

@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="-McX2nGs324JLjkL5PeU" name="Page-1">
-        <mxGraphModel dx="536" dy="422" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="3000" math="0" shadow="0">
+        <mxGraphModel dx="495" dy="352" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="3000" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -48,7 +48,7 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="11" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Setup Base UI" vertex="1">
+                <mxCell id="11" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" value="Setup Base UI" vertex="1">
                     <mxGeometry height="60" width="120" x="380" y="280" as="geometry"/>
                 </mxCell>
                 <mxCell id="X8xHP1jf8g7BQCaoUasX-38" edge="1" parent="1" source="13" style="edgeStyle=none;html=1;" target="X8xHP1jf8g7BQCaoUasX-37" value="">
@@ -78,8 +78,8 @@
                 <mxCell id="28" edge="1" parent="1" source="19" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="26">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="19" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Calibration code" vertex="1">
-                    <mxGeometry height="40" width="100" x="50" y="565" as="geometry"/>
+                <mxCell id="19" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" value="Calibration code" vertex="1">
+                    <mxGeometry height="40" width="80" x="70" y="565" as="geometry"/>
                 </mxCell>
                 <mxCell id="27" edge="1" parent="1" source="21" style="edgeStyle=none;html=1;" target="26" value="">
                     <mxGeometry relative="1" as="geometry"/>
@@ -90,7 +90,7 @@
                 <mxCell id="29" edge="1" parent="1" source="23" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="26">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="23" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Custom location (Angles) data collection" vertex="1">
+                <mxCell id="23" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Custom location (Angles) data collection" vertex="1">
                     <mxGeometry height="50" width="110" x="275" y="560" as="geometry"/>
                 </mxCell>
                 <mxCell id="31" edge="1" parent="1" source="26" style="edgeStyle=none;html=1;" target="30" value="">
@@ -129,7 +129,7 @@
                 <mxCell id="X8xHP1jf8g7BQCaoUasX-43" edge="1" parent="1" source="X8xHP1jf8g7BQCaoUasX-35" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="30">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="X8xHP1jf8g7BQCaoUasX-35" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Setup Live data display, and data saving" vertex="1">
+                <mxCell id="X8xHP1jf8g7BQCaoUasX-35" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Setup Live data display, and data saving" vertex="1">
                     <mxGeometry height="60" width="120" x="420" y="630" as="geometry"/>
                 </mxCell>
                 <mxCell id="X8xHP1jf8g7BQCaoUasX-40" edge="1" parent="1" source="X8xHP1jf8g7BQCaoUasX-37" style="edgeStyle=none;html=1;" target="X8xHP1jf8g7BQCaoUasX-39" value="">
@@ -159,19 +159,19 @@
                 <mxCell id="X8xHP1jf8g7BQCaoUasX-51" edge="1" parent="1" source="X8xHP1jf8g7BQCaoUasX-45" style="edgeStyle=none;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="30">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="X8xHP1jf8g7BQCaoUasX-45" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Frequncy Sweep" vertex="1">
+                <mxCell id="X8xHP1jf8g7BQCaoUasX-45" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" value="Frequncy Sweep" vertex="1">
                     <mxGeometry height="40" width="80" x="670" y="580" as="geometry"/>
                 </mxCell>
                 <mxCell id="X8xHP1jf8g7BQCaoUasX-52" edge="1" parent="1" source="X8xHP1jf8g7BQCaoUasX-46" style="edgeStyle=none;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="30">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="X8xHP1jf8g7BQCaoUasX-46" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Settings setup" vertex="1">
+                <mxCell id="X8xHP1jf8g7BQCaoUasX-46" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#d5e8d4;strokeColor=#82b366;" value="Settings setup" vertex="1">
                     <mxGeometry height="40" width="70" x="760" y="580" as="geometry"/>
                 </mxCell>
                 <mxCell id="X8xHP1jf8g7BQCaoUasX-53" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Setup on Lab PC" vertex="1">
                     <mxGeometry height="60" width="120" x="420" y="830" as="geometry"/>
                 </mxCell>
-                <mxCell id="X8xHP1jf8g7BQCaoUasX-57" parent="1" style="whiteSpace=wrap;html=1;rounded=0;" value="Preform Calibration" vertex="1">
+                <mxCell id="X8xHP1jf8g7BQCaoUasX-57" parent="1" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Preform Calibration" vertex="1">
                     <mxGeometry height="60" width="100" x="620" y="740" as="geometry"/>
                 </mxCell>
             </root>
