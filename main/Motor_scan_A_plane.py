@@ -13,7 +13,7 @@ progress = 0
 
 
 def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=0.01,
-                main_boom_speed=4, polarization_speed=2000):
+                main_boom_speed=4, polarization_speed=2000, com1="12", com2="13", project_name=""):
     """_summary_
     Quickest test is the ECO or HCO. 
     Please note that the sampling / data collection code can be found in take_sample(). 
@@ -65,8 +65,8 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
     #######################
     # Setup motors:
     # Define ports of the motors being used.
-    elev = r"xi-com:\\.\COM12"  # Elevation
-    azi = r"xi-com:\\.\COM13"  # azimuth
+    elev = r"xi-com:\\.\COM"+com1  # Elevation
+    azi = r"xi-com:\\.\COM"+com2  # azimuth
 
     azi_axis = ximc.Axis(azi)
     elev_axis = ximc.Axis(elev)
@@ -125,7 +125,7 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
         # print("data_points (take sample): " + str(data_points))
         logging.info("Progress: "+str(100*progress/data_points) + " %")
         logging.info("Taking Sample...")
-        vna_interface.sweep_and_save()
+        vna_interface.sweep_and_save(project_name)
 
     def time_estimate(azi_rotations):
         time_sum = 0

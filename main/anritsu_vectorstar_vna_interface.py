@@ -120,7 +120,7 @@ def _read_arbitrary_block_text():
 
 # Function needed by Brandon's code
 
-def sweep_and_save(out_dir=OUTPUT_DIR):
+def sweep_and_save(project_name, out_dir=OUTPUT_DIR):
     global _point_counter
     inst.write(":SENSe:HOLD:FUNCtion HOLD")
     inst.write(":TRIG:SING")   # blocks until the sweep completes
