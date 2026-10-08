@@ -36,6 +36,16 @@ Chamber control screen connected directly to the real hardware modules:
     Operator Takeaway: After aborting, wait for physical motion to stop.
     If a hard kill occurs, inspect the chamber manually before running another scan.
 
+    5. RESOLVED: planer_scan() now accepts com1, com2 and project_name as parameters. Confirmed from the
+    motor code itself that com1 controls Elevation and com2 controls Azimuth (elev = "...COM"+com1,
+    azi = "...COM"+com2) — the opposite pairing from this file's own "azimuth"/"elevation" field names,
+    so the swap is handled once, at the _run_scan_process() call site, rather than in the GUI fields
+    themselves. project_name is passed straight through to vna_interface.sweep_and_save() as its out_dir
+    argument — this is INFERRED from reading the call site (sweep_and_save()'s only parameter is out_dir),
+    not explicitly confirmed by whoever owns the motor file, so it's worth a quick confirmation message
+    before relying on it in a real run. It must never be an empty string: sweep_and_save() calls
+    os.makedirs(out_dir), which raises FileNotFoundError immediately on an empty path — every sample in
+    the run would crash. ScanPanel refuses to start a scan with a blank project name for this reason.
 """
 from __future__ import annotations
 
@@ -45,12 +55,14 @@ import logging
 import logging.handlers
 import multiprocessing as mp
 import os
+import signal
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import QObject, QTimer, Signal
+from PySide6.QtGui import QIntValidator
 from PySide6.QtWidgets import (
     QApplication,
     QComboBox,
@@ -68,6 +80,19 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+
+# --------------------------------------------------------------------------
+# Defaults for things the GUI can't query or validate automatically — motor
+# COM ports, mainly. Kept here, at the top, specifically so they're easy to
+# find and edit without digging through the rest of the file once the real
+# port numbers are confirmed. See item 5 in the docstring above for the
+# important caveat that these are NOT yet wired into the hardware call.
+# --------------------------------------------------------------------------
+
+DEFAULT_AZIMUTH_COM_PORT = "13"
+DEFAULT_ELEVATION_COM_PORT = "12"
+DEFAULT_RUN_NOTES_FILENAME = "project1.txt"
+DEFAULT_PROJECT_NAME = "project1"
 
 # --------------------------------------------------------------------------
 # Type of scan: 
@@ -93,6 +118,15 @@ class ScanConfig:
     scan_type: str          # 'E' | 'ECO' | 'H' | 'HCO'
     azimuth_points: int     # number of angular positions per 90 degree boom sweep pass
     output_dir: Path        #output directory where .s2p and manifest.csv are saved
+    azimuth_com_port: str = DEFAULT_AZIMUTH_COM_PORT
+    elevation_com_port: str = DEFAULT_ELEVATION_COM_PORT
+    run_notes_filename: str = DEFAULT_RUN_NOTES_FILENAME
+    # Passed straight through to planer_scan(project_name=...), which
+    # passes it straight through to vna_interface.sweep_and_save(out_dir=...)
+    # — see item 5 in the module docstring. Must never be empty: an empty
+    # string makes sweep_and_save()'s os.makedirs(out_dir) raise
+    # FileNotFoundError on the very first sample.
+    project_name: str = DEFAULT_PROJECT_NAME
 
 
 # --------------------------------------------------------------------------
@@ -162,6 +196,18 @@ def _run_scan_process(config: ScanConfig, log_queue: mp.Queue) -> None:
     config.output_dir.mkdir(parents=True, exist_ok=True)
     os.chdir(config.output_dir)
 
+    # planer_scan() now accepts com1/com2/project_name directly (see item 5
+    # in the module docstring for the history). Confirmed by reading the
+    # motor code itself:
+    #   elev = ...COM + com1   -> com1 is the ELEVATION port
+    #   azi  = ...COM + com2   -> com2 is the AZIMUTH port
+    # This is the opposite pairing from the field names in our own GUI, so
+    # the swap happens right here at the call site, not in the GUI layer.
+    logging.info(
+        "Motor ports this run: elevation=COM%s (com1), azimuth=COM%s (com2).",
+        config.elevation_com_port, config.azimuth_com_port,
+    )
+
     try:
         import anritsu_vectorstar_vna_interface as vna_interface
         import Motor_scan_A_plane as motor_scan
@@ -183,6 +229,9 @@ def _run_scan_process(config: ScanConfig, log_queue: mp.Queue) -> None:
         motor_scan.planer_scan(
             azimuth_points=config.azimuth_points,
             type=config.scan_type,
+            com1=config.elevation_com_port,
+            com2=config.azimuth_com_port,
+            project_name=config.project_name,
         )
         logging.info("Scan complete.")
     except Exception as exc:
@@ -232,6 +281,8 @@ class ScanController(QObject):
         self._manifest_index = 0
 
         config.output_dir.mkdir(parents=True, exist_ok=True)
+        self._write_run_notes(config)
+
         manifest_path = config.output_dir / "manifest.csv"
         is_new = not manifest_path.exists()
         self._manifest_file = open(manifest_path, "a", newline="")
@@ -249,6 +300,29 @@ class ScanController(QObject):
         )
         self._process.start()
         self._poll_timer.start()
+
+    def _write_run_notes(self, config: ScanConfig) -> None:
+        """A small human-readable summary of this run's settings, written
+        alongside the .s2p files and manifest.csv so a run is still
+        identifiable later without having to reopen the GUI or dig through
+        the raw log. Named by the operator (default: project1.txt)."""
+        if not config.run_notes_filename:
+            return
+        lines = [
+            f"Run started: {datetime.datetime.now().isoformat(timespec='seconds')}",
+            f"Scan type: {config.scan_type}",
+            f"Frequency: {config.f_start_hz/1e9:.3f}-{config.f_stop_hz/1e9:.3f} GHz, "
+            f"{config.num_points} points, IF bandwidth {config.ifbw_hz:.0f} Hz",
+            f"Azimuth points per 90-degree pass: {config.azimuth_points}",
+            f"Expected total samples: {len(self._manifest)}",
+            f"Azimuth COM port: COM{config.azimuth_com_port} (sent as com2)",
+            f"Elevation COM port: COM{config.elevation_com_port} (sent as com1)",
+            f"Project name: {config.project_name} "
+            "(becomes the .s2p output folder name, per planer_scan())",
+            f"Output folder: {config.output_dir}",
+        ]
+        notes_path = config.output_dir / config.run_notes_filename
+        notes_path.write_text("\n".join(lines) + "\n")
 
     def abort(self) -> None:
         if self._process is not None and self._process.is_alive():
@@ -326,7 +400,7 @@ class ScanPanel(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("CEFIM mmWave Chamber: Scan Control")
-        self.resize(560, 640)
+        self.resize(560, 700)
 
         self._controller = ScanController()
         self._controller.log_line.connect(self._append_log)
@@ -391,8 +465,38 @@ class ScanPanel(QWidget):
         scan_form.addRow("Points per 90 degree pass:", self._az_points)
         scan_group.setLayout(scan_form)
 
-        # Output folder for s2p_data/ and manifest.csv
-        out_group = QGroupBox("Output folder")
+        
+
+        # Motor COM ports -> planer_scan(com1=elevation, com2=azimuth). The
+        # field names here follow the axis, not his parameter names — the
+        # com1/com2 swap is handled once at the subprocess call site.
+        port_group = QGroupBox("Motor COM ports")
+        port_validator = QIntValidator(1, 999, self)
+
+        self._azimuth_com_edit = QLineEdit(DEFAULT_AZIMUTH_COM_PORT)
+        self._azimuth_com_edit.setValidator(port_validator)
+        self._azimuth_com_edit.setToolTip("Sent to planer_scan() as com2.")
+
+        self._elevation_com_edit = QLineEdit(DEFAULT_ELEVATION_COM_PORT)
+        self._elevation_com_edit.setValidator(port_validator)
+        self._elevation_com_edit.setToolTip("Sent to planer_scan() as com1.")
+
+        self._project_name_edit = QLineEdit(DEFAULT_PROJECT_NAME)
+        self._project_name_edit.setToolTip(
+            "Sent to planer_scan() as project_name, which becomes the .s2p "
+            "output folder name. Cannot be blank — an empty value crashes "
+            "the VNA save step on the very first sample."
+        )
+
+        port_form = QFormLayout()
+        port_form.addRow("Azimuth (COM):", self._azimuth_com_edit)
+        port_form.addRow("Elevation (COM):", self._elevation_com_edit)
+        port_form.addRow("Project name:", self._project_name_edit)
+        port_group.setLayout(port_form)
+
+        # Output folder for s2p_data/ and manifest.csv, plus a human-readable
+        # run notes file written alongside them.
+        out_group = QGroupBox("Output")
         default_dir = Path.cwd() / f"run_{datetime.datetime.now():%Y%m%d_%H%M%S}"
         self._out_dir_edit = QLineEdit(str(default_dir))
         browse_button = QPushButton("Choose...")
@@ -400,7 +504,17 @@ class ScanPanel(QWidget):
         out_row = QHBoxLayout()
         out_row.addWidget(self._out_dir_edit, stretch=1)
         out_row.addWidget(browse_button)
-        out_group.setLayout(out_row)
+
+        self._run_notes_edit = QLineEdit(DEFAULT_RUN_NOTES_FILENAME)
+        self._run_notes_edit.setToolTip(
+            "A plain-text summary of this run's settings, written into the "
+            "output folder alongside the .s2p files and manifest.csv."
+        )
+
+        out_form = QFormLayout()
+        out_form.addRow("Folder:", out_row)
+        out_form.addRow("Run notes file:", self._run_notes_edit)
+        out_group.setLayout(out_form)
 
         # Controls
         self._start_button = QPushButton("Start Scan")
@@ -422,6 +536,7 @@ class ScanPanel(QWidget):
         layout.addWidget(title)
         layout.addWidget(freq_group)
         layout.addWidget(scan_group)
+        layout.addWidget(port_group)
         layout.addWidget(out_group)
         layout.addLayout(button_row)
         layout.addWidget(self._progress_bar)
@@ -444,6 +559,14 @@ class ScanPanel(QWidget):
             self._append_log("Stop frequency must exceed start frequency.")
             return
 
+        project_name = self._project_name_edit.text().strip()
+        if not project_name:
+            self._append_log(
+                "Project name cannot be blank — it becomes the .s2p output "
+                "folder name, and an empty value crashes the VNA save step."
+            )
+            return
+
         scan_type = SCAN_TYPES[self._type_box.currentText()]
         config = ScanConfig(
             f_start_hz=start_hz,
@@ -453,6 +576,10 @@ class ScanPanel(QWidget):
             scan_type=scan_type,
             azimuth_points=self._az_points.value(),
             output_dir=Path(self._out_dir_edit.text()),
+            azimuth_com_port=self._azimuth_com_edit.text(),
+            elevation_com_port=self._elevation_com_edit.text(),
+            run_notes_filename=self._run_notes_edit.text(),
+            project_name=project_name,
         )
 
         total = len(build_expected_manifest(scan_type, config.azimuth_points))
@@ -486,6 +613,8 @@ class ScanPanel(QWidget):
         for widget in (
             self._start_ghz, self._stop_ghz, self._points, self._ifbw,
             self._type_box, self._az_points, self._out_dir_edit,
+            self._azimuth_com_edit, self._elevation_com_edit, self._run_notes_edit,
+            self._project_name_edit,
         ):
             widget.setEnabled(enabled)
 
