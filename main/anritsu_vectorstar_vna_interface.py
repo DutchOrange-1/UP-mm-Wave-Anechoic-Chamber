@@ -8,7 +8,8 @@ import pyvisa
 
 # Connection
 
-rm = pyvisa.ResourceManager()
+# rm = pyvisa.ResourceManager()
+rm = pyvisa.ResourceManager("@py")
 print(rm.list_resources())
 inst = rm.open_resource('TCPIP::10.0.0.2::INSTR')
 inst.read_termination = '\n'
@@ -120,7 +121,7 @@ def _read_arbitrary_block_text():
 
 # Function needed by Brandon's code
 
-def sweep_and_save(project_name, out_dir=OUTPUT_DIR):
+def sweep_and_save(project_name="prj_1", out_dir=OUTPUT_DIR, file_name="AZI_X_ELEV_X_CO_POL"):
     global _point_counter
     inst.write(":SENSe:HOLD:FUNCtion HOLD")
     inst.write(":TRIG:SING")   # blocks until the sweep completes
@@ -133,7 +134,9 @@ def sweep_and_save(project_name, out_dir=OUTPUT_DIR):
     # --- Save as the incrementing PointX.s2p filename ---
     os.makedirs(out_dir, exist_ok=True)
     _point_counter += 1
-    filename = f"Point{_point_counter}.s2p"
+    # filename = f"Point{_point_counter}.s2p"
+    # name the file to be saved
+    filename = f"{project_name}_{file_name}_{_point_counter}.s2p"
     path = os.path.join(out_dir, filename)
     with open(path, "w") as f:
         f.write(s2p_text)

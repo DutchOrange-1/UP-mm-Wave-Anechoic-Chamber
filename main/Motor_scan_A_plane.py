@@ -13,7 +13,7 @@ progress = 0
 
 
 def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=0.01,
-                main_boom_speed=4, polarization_speed=2000, com1="12", com2="13", project_name=""):
+                main_boom_speed=4, polarization_speed=2000, com1="12", com2="13", project_name_global=""):
     """_summary_
     Quickest test is the ECO or HCO. 
     Please note that the sampling / data collection code can be found in take_sample(). 
@@ -90,7 +90,7 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
         elev_axis.command_zero()
         logging.info("Done Homing Elevation")
 
-    def elv_mov_up(positions):
+    def elv_mov_up(positions, azi_pos):
         # Assuming starting from 0
         elev_axis.command_move(0, 0)
         for pos in positions:
@@ -99,11 +99,12 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             elev_axis.command_move(position, 0)
             elev_axis.command_wait_for_stop(100)
             time.sleep(wobble_time_azimuth)
-            take_sample()
+            take_sample(pos, azi_pos)
 
-    def elv_mov_down(positions):
+    def elv_mov_down(positions, azi_pos):
         # Rotate the array to go from the other direction.
         positions = positions[::-1]
+        # positions = positions[1:] # Removed as it just makes things complicated.
         # Assuming starting from 90, or close to it, will start moving down from last spot
         for pos in positions:
             logging.info("Moving to: %.2f ", pos)
@@ -111,7 +112,8 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             elev_axis.command_move(position, 0)
             elev_axis.command_wait_for_stop(100)
             time.sleep(wobble_time_azimuth)
-            take_sample()
+            # -180 deg as its going back down.
+            take_sample((180-pos), azi_pos)
 
     def mov_azi(pos):
         position = pos * azi_angle_step_res
@@ -119,13 +121,17 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
         azi_axis.command_wait_for_stop(100)
         time.sleep(wobble_pol)
 
-    def take_sample():
+    def take_sample(pos, azi_pos):
         global progress
         progress += 1
         # print("data_points (take sample): " + str(data_points))
-        logging.info("Progress: "+str(100*progress/data_points) + " %")
+        # logging.info("Progress: "+str(25*progress/data_points) + " %")
         logging.info("Taking Sample...")
-        vna_interface.sweep_and_save(project_name)
+        file_position = "ELV_" + \
+            str("{:.2f}".format(pos))+"_AZI_"+str("{:.2f}".format(azi_pos))
+        vna_interface.sweep_and_save(
+            project_name=project_name_global,
+            file_name=file_position)
 
     def time_estimate(azi_rotations):
         time_sum = 0
@@ -180,19 +186,19 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             # Start Taking Measurements
             # For Pos 1:
             mov_azi(pos1)
-            elv_mov_up(elev_positions)
+            elv_mov_up(elev_positions, pos1)
 
             # For Pos2
             mov_azi(pos2)
-            elv_mov_down(elev_positions)
+            elv_mov_down(elev_positions, pos2)
 
             # For Pos3
             mov_azi(pos3)
-            elv_mov_up(elev_positions)
+            elv_mov_up(elev_positions, pos3)
 
             # For Pos4
             mov_azi(pos4)
-            elv_mov_down(elev_positions)
+            elv_mov_down(elev_positions, pos4)
 
         except KeyboardInterrupt:
             logging.error("\nEMERGENCY STOP!")
@@ -244,11 +250,11 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             # Start Taking Measurements
             # For Pos 1:
             mov_azi(pos1)
-            elv_mov_up(elev_positions)
+            elv_mov_up(elev_positions, pos1)
 
             # For Pos2
             mov_azi(pos2)
-            elv_mov_down(elev_positions)
+            elv_mov_down(elev_positions, pos2)
 
         except KeyboardInterrupt:
             logging.error("\nEMERGENCY STOP!")

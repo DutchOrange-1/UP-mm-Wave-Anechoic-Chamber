@@ -95,29 +95,32 @@ DEFAULT_RUN_NOTES_FILENAME = "project1.txt"
 DEFAULT_PROJECT_NAME = "project1"
 
 # --------------------------------------------------------------------------
-# Type of scan: 
+# Type of scan:
 # User sets the E plane or H plane manually by positioning the antennas
 # according to desired measurement. Motors do not encode that.
 # --------------------------------------------------------------------------
 
 SCAN_TYPES = {
-    "E-plane Co & Cross": "E",
-    "E-plane Co only": "ECO",
-    "H-plane Co & Cross": "H",
-    "H-plane Co only": "HCO",
+    "Co & Cross Pol": "E",
+    "Co Pol": "ECO",
+    # "E-plane Co & Cross": "E",
+    # "E-plane Co only": "ECO",
+    # "H-plane Co & Cross": "H",
+    # "H-plane Co only": "HCO",
 }
 
 
 @dataclass
 class ScanConfig:
-    f_start_hz: float      #starting frequency
-    f_stop_hz: float       #stopping frequency
-    num_points: int        #number of points
-    #VNA downconverts the received signal before measuring it (either slower measurements with less noise or faster sweep with more noise on the trace)
-    ifbw_hz: float          #vna's intermediate frequency bandwidth measured in hertz (from the vna interface file)
+    f_start_hz: float  # starting frequency
+    f_stop_hz: float  # stopping frequency
+    num_points: int  # number of points
+    # VNA downconverts the received signal before measuring it (either slower measurements with less noise or faster sweep with more noise on the trace)
+    # vna's intermediate frequency bandwidth measured in hertz (from the vna interface file)
+    ifbw_hz: float
     scan_type: str          # 'E' | 'ECO' | 'H' | 'HCO'
     azimuth_points: int     # number of angular positions per 90 degree boom sweep pass
-    output_dir: Path        #output directory where .s2p and manifest.csv are saved
+    output_dir: Path  # output directory where .s2p and manifest.csv are saved
     azimuth_com_port: str = DEFAULT_AZIMUTH_COM_PORT
     elevation_com_port: str = DEFAULT_ELEVATION_COM_PORT
     run_notes_filename: str = DEFAULT_RUN_NOTES_FILENAME
@@ -136,7 +139,7 @@ class ScanConfig:
 # --------------------------------------------------------------------------
 
 def build_expected_manifest(scan_type: str, azimuth_points: int) -> list[dict]:
-    #start at 0 degrees and go to 90 degrees in steps of azimuth_points
+    # start at 0 degrees and go to 90 degrees in steps of azimuth_points
     elev_positions = np.linspace(0, 90, azimuth_points)
     plane = "E-plane" if scan_type in ("E", "ECO") else "H-plane"
 
@@ -155,7 +158,7 @@ def build_expected_manifest(scan_type: str, azimuth_points: int) -> list[dict]:
     else:
         raise ValueError(f"Unknown scan type: {scan_type!r}")
 
-    manifest: list[dict] = [] #create empty and append in loop
+    manifest: list[dict] = []  # create empty and append in loop
     for aut_deg, pol, positions, direction in passes:
         for boom_deg in positions:
             manifest.append(
@@ -182,9 +185,9 @@ def _run_scan_process(config: ScanConfig, log_queue: mp.Queue) -> None:
     root_logger.setLevel(logging.INFO)
     root_logger.addHandler(queue_handler)
 
-    #ScanController.abort() calls process.terminate(), which sends SIGTERM.
-    #if SIGTERM kills this process immediately if it is left alone
-    # motors coast to position they were last commanded to  
+    # ScanController.abort() calls process.terminate(), which sends SIGTERM.
+    # if SIGTERM kills this process immediately if it is left alone
+    # motors coast to position they were last commanded to
     def _handle_sigterm(signum, frame):
         raise KeyboardInterrupt
 
@@ -231,7 +234,7 @@ def _run_scan_process(config: ScanConfig, log_queue: mp.Queue) -> None:
             type=config.scan_type,
             com1=config.elevation_com_port,
             com2=config.azimuth_com_port,
-            project_name=config.project_name,
+            project_name_global=config.project_name,
         )
         logging.info("Scan complete.")
     except Exception as exc:
@@ -274,10 +277,11 @@ class ScanController(QObject):
         # planer_scan() has a KeyboardInterrupt handling which stops the motors quickly
         # there is homing() and close_device() on both axes
         # tests can shrink it instead of waiting on real timing
-        self.abort_grace_s = 20 
+        self.abort_grace_s = 20
 
     def start(self, config: ScanConfig) -> None:
-        self._manifest = build_expected_manifest(config.scan_type, config.azimuth_points)
+        self._manifest = build_expected_manifest(
+            config.scan_type, config.azimuth_points)
         self._manifest_index = 0
 
         config.output_dir.mkdir(parents=True, exist_ok=True)
@@ -290,13 +294,15 @@ class ScanController(QObject):
             "point_index", "s2p_filename", "plane", "polarisation",
             "aut_rotation_deg", "boom_deg", "sweep_direction",
         ]
-        self._manifest_writer = csv.DictWriter(self._manifest_file, fieldnames=fieldnames)
+        self._manifest_writer = csv.DictWriter(
+            self._manifest_file, fieldnames=fieldnames)
         if is_new:
             self._manifest_writer.writeheader()
 
         self._log_queue = mp.Queue()
         self._process = mp.Process(
-            target=_run_scan_process, args=(config, self._log_queue), daemon=True
+            target=_run_scan_process, args=(
+                config, self._log_queue), daemon=True
         )
         self._process.start()
         self._poll_timer.start()
@@ -326,12 +332,13 @@ class ScanController(QObject):
 
     def abort(self) -> None:
         if self._process is not None and self._process.is_alive():
-            self.log_line.emit("Operator requested abort which terminates scan process.")
+            self.log_line.emit(
+                "Operator requested abort which terminates scan process.")
             self._process.terminate()
             self._process.join(timeout=self.abort_grace_s)
             if self._process.is_alive():
                 self.log_line.emit("Process did not exit after the stop/home sequence; forcing a hard kill."
-                "Check the chamber physically before starting another scan.")
+                                   "Check the chamber physically before starting another scan.")
                 self._process.kill()
                 self._process.join(timeout=5)
         self._poll_timer.stop()
@@ -353,7 +360,8 @@ class ScanController(QObject):
                 if exit_ok:
                     self.finished.emit()
                 else:
-                    self.failed.emit("Scan process exited with an error — see log")
+                    self.failed.emit(
+                        "Scan process exited with an error — see log")
                 return
 
             message = record.getMessage()
@@ -458,14 +466,13 @@ class ScanPanel(QWidget):
         self._az_points = QSpinBox()
         self._az_points.setRange(2, 500)
         self._az_points.setValue(9)
-        self._az_points.setToolTip("Number of boom positions per 0-90 degree pass")
+        self._az_points.setToolTip(
+            "Number of boom positions per 0-90 degree pass")
 
         scan_form = QFormLayout()
         scan_form.addRow("Measurement:", self._type_box)
         scan_form.addRow("Points per 90 degree pass:", self._az_points)
         scan_group.setLayout(scan_form)
-
-        
 
         # Motor COM ports -> planer_scan(com1=elevation, com2=azimuth). The
         # field names here follow the axis, not his parameter names — the
@@ -497,7 +504,9 @@ class ScanPanel(QWidget):
         # Output folder for s2p_data/ and manifest.csv, plus a human-readable
         # run notes file written alongside them.
         out_group = QGroupBox("Output")
-        default_dir = Path.cwd() / f"run_{datetime.datetime.now():%Y%m%d_%H%M%S}"
+        # Brandon - tried to add the correct file name - did not work.
+        default_dir = Path.cwd() / \
+            f"run_{self._project_name_edit.text().strip()}_{datetime.datetime.now():%Y%m%d_%H%M%S}"
         self._out_dir_edit = QLineEdit(str(default_dir))
         browse_button = QPushButton("Choose...")
         browse_button.clicked.connect(self._on_browse)

@@ -1,0 +1,9 @@
+point_index,s2p_filename,plane,polarisation,aut_rotation_deg,boom_deg,sweep_direction
+1,Point1.s2p,E-plane,co,0,0.0,up
+2,Point2.s2p,E-plane,co,0,6.4286,up
+3,Point3.s2p,E-plane,co,0,12.8571,up
+4,Point4.s2p,E-plane,co,0,19.2857,up
+5,Point5.s2p,E-plane,co,0,25.7143,up
+6,Point6.s2p,E-plane,co,0,32.1429,up
+7,Point7.s2p,E-plane,co,0,38.5714,up
+8,Point8.s2p,E-plane,co,0,45.0,up
