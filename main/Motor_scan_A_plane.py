@@ -7,6 +7,7 @@ import numpy as np
 import time
 import libximc.highlevel as ximc
 import anritsu_vectorstar_vna_interface as vna_interface
+import winsound
 
 
 progress = 0
@@ -147,6 +148,10 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
 
         logging.info("Estimated time: %.2f Minutes", time_sum/60)
 
+    def finish_scanning():
+        winsound.PlaySound("./supplementary/finish_audio.wav",
+                           winsound.SND_FILENAME)
+
     def scan_AUT_CO_CROSS(azimuth_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
         """
         Does co and cross pol
@@ -199,6 +204,8 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             # For Pos4
             mov_azi(pos4)
             elv_mov_down(elev_positions, pos4)
+
+            finish_scanning()
 
         except KeyboardInterrupt:
             logging.error("\nEMERGENCY STOP!")
@@ -255,6 +262,8 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             # For Pos2
             mov_azi(pos2)
             elv_mov_down(elev_positions, pos2)
+
+            finish_scanning()
 
         except KeyboardInterrupt:
             logging.error("\nEMERGENCY STOP!")
