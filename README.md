@@ -12,7 +12,7 @@ Please read this document on [planning](./Testing/planning/ConceptPlanning.MD).
 # Installation of Program:
 Python, with the following packages. 
 ```
-python -m pip install PySide6 libximc pyvisa numpy
+python -m pip install PySide6 libximc pyvisa numpy pandas
 ```
 
 # Brief workings of program

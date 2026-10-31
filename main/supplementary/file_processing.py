@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import pandas as pd
 
 
 def extract_CO_POL(project_name, azimuth_points):
@@ -7,56 +8,69 @@ def extract_CO_POL(project_name, azimuth_points):
     project_name: What project data to extract
     azimuth_points: What azimuth points to extract - as this will be used for the file compression. 
     """
-    print(_get_files_path(project_name))
+    file_list, data_path = _get_files_path(project_name)
+    print(data_path)
+
+    # Extract the data needed from the manifest.
+    # points = _extract_txt_info(data_path)
+    # expected_data_points = np.linspace(0, 90, points)
+    # expected_data_points = np.concatenate(
+    #     (expected_data_points, (180-expected_data_points[::-1])))
+    # expected_data_points = np.round(expected_data_points, 3)
+    # print(expected_data_points)
+    print(_extract_txt_manifest_info(data_path))
 
 
-def extract_elevation(files, elev):
+def _extract_txt_manifest_info(data_path):
+    """Extracts the number of azimuth points from the txt file
+    Args:
+        data_path (_type_): Extracts the number of azimuth points from the txt file
 
-    sorted_files = get_sorted_files(files, elev)
-    master_data = []
+    Raises:
+        FileNotFoundError: _description_
 
-    for file in sorted_files:
-        data = np.loadtxt(file, skiprows=6, comments='!')
+    Returns:
+        _type_: Number of Azimuth points
+    """
+    # Go back to the project directory
+    project_path = data_path.parent
 
-        freq = data[:, 0]
-        azi = float(re.search(r"AZI_(-?\d+(?:\.\d+)?)", file.name).group(1))
+    # Find the only TXT file
+    txt_files = list(project_path.glob("*.txt"))
 
-        S11 = data[:, 1] + 1j * data[:, 2]
-        S21 = data[:, 3] + 1j * data[:, 4]
-        S12 = data[:, 5] + 1j * data[:, 6]
-        S22 = data[:, 7] + 1j * data[:, 8]
+    if len(txt_files) == 1:
+        log_file = txt_files[0]
+        # print(f"Log file: {log_file}")
 
-        output_data = np.column_stack((
-            freq,
-            np.full(len(freq), azi),
-            np.full(len(freq), elev),
-            20*np.log10(np.abs(S11)),
-            20*np.log10(np.abs(S12)),
-            20*np.log10(np.abs(S21)),
-            20*np.log10(np.abs(S22))
-        ))
+        azimuth_points = _extract_azimuth_points(log_file)
+        # print(f"Azimuth points per 90-degree pass: {azimuth_points}")
 
-        master_data.append(output_data)
+        # Manifest data:
+        # Load manifest
+        manifest = pd.read_csv(project_path / "manifest.csv")
+        # Sort by acquisition index
+        manifest = manifest.sort_values("point_index")
+        # Extract filenames
+        filenames = manifest["s2p_filename"].to_numpy()
 
-    return np.vstack(master_data)
+        return azimuth_points, filenames
 
-
-def get_sorted_files(files, elev):
-    filtered_files = [
-        file for file in files
-        if re.search(
-            rf"ELEV_{elev}(?:_|\.|$).*AZI_",
-            file
+    else:
+        raise FileNotFoundError(
+            f"Expected exactly one TXT file, found {len(txt_files)}"
         )
-    ]
 
-    filtered_files.sort(
-        key=lambda f: float(
-            re.search(r"AZI_(-?\d+(?:\.\d+)?)", f).group(1)
-        )
+
+def _extract_azimuth_points(file_path):
+    with open(file_path, "r") as file:
+        content = file.read()
+
+    match = re.search(
+        r"Azimuth points per 90-degree pass:\s*(\d+)",
+        content
     )
 
-    return filtered_files
+    return int(match.group(1)) if match else None
 
 
 def _get_files_path(project_name):
@@ -76,13 +90,13 @@ def _get_files_path(project_name):
 
         for file in data_path.iterdir():
             file_name = str(file).split("\\")[-1]
-            print(file_name)
+            # print(file_name)
             file_list.append(file_name)
+        return file_list, data_path
 
     else:
         print("No matching project directories found.")
 
-    return file_list
 
 # # Create azimuth and elevation columns
 # azi_array = np.full(len(freq), azi)
