@@ -12,11 +12,11 @@ Please read this document on [planning](./Testing/planning/ConceptPlanning.MD).
 # Installation of Program:
 Python, with the following packages. 
 ```
-python -m pip install PySide6 libximc pyvisa numpy pandas
+python -m pip install PySide6 libximc pyvisa numpy pandas matplotlib
 ```
 
 # Brief workings of program
-Nothing yet. 
+In Main, run the ``Chamber_ui.py``.  
 
 # Possible features to add:
 - Phase compensation during calibration. 

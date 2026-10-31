@@ -4,13 +4,15 @@ import pandas as pd
 from pathlib import Path
 
 
-def extract_CO_POL(project_name, azimuth_points):
+def extract_CO_POL(project_name):
     """_summary_
     project_name: What project data to extract
-    azimuth_points: What azimuth points to extract - as this will be used for the file compression. 
+
+    Outputs the compressed file, and returns the data path of where it is. 
     """
+    print(f"Compressing: {project_name} CO POL")
     file_list, data_path = _get_files_path(project_name)
-    print(data_path)
+    # print(data_path)
 
     # Extract the data needed from the manifest.
     # points = _extract_txt_info(data_path)
@@ -32,7 +34,24 @@ def extract_CO_POL(project_name, azimuth_points):
     # print(manifest_data["boom_deg"].to_numpy())
 
     master_data = _extract_measurements(file_list, data_path)
-    print(master_data)
+    # print(master_data)
+
+    header = (
+        "FREQ.HZ\tELV.deg\tAZI.deg\t"
+        "S11_RE\tS11_IM\tS12_RE\tS12_IM\t"
+        "S21_RE\tS21_IM\tS22_RE\tS22_IM"
+    )
+    file_name = "processed_"+project_name+".txt"
+    np.savetxt(
+        data_path.parent / file_name,
+        master_data,
+        delimiter="\t",
+        header=header,
+        comments="",
+        fmt="%.8e"
+    )
+
+    return data_path.parent
 
 
 def _extract_measurements(file_list, data_path):
@@ -88,17 +107,17 @@ def _extract_measurements(file_list, data_path):
     return np.vstack(master_data)
 
 
-def _sort_measurement_files(file_list):
+# def _sort_measurement_files(file_list):
 
-    def extract_angles(file):
-        filename = Path(file).name
+#     def extract_angles(file):
+#         filename = Path(file).name
 
-        elv = float(re.search(r"ELV_(-?\d+(?:\.\d+)?)", filename).group(1))
-        azi = float(re.search(r"AZI_(-?\d+(?:\.\d+)?)", filename).group(1))
+#         elv = float(re.search(r"ELV_(-?\d+(?:\.\d+)?)", filename).group(1))
+#         azi = float(re.search(r"AZI_(-?\d+(?:\.\d+)?)", filename).group(1))
 
-        return round(elv, 3), azi
+#         return round(elv, 3), azi
 
-    return sorted(file_list, key=extract_angles)
+#     return sorted(file_list, key=extract_angles)
 
 
 def _extract_txt_manifest_info(data_path):
@@ -116,7 +135,10 @@ def _extract_txt_manifest_info(data_path):
     project_path = data_path.parent
 
     # Find the only TXT file
-    txt_files = list(project_path.glob("*.txt"))
+    txt_files = [
+        file for file in project_path.glob("*.txt")
+        if "processed" not in file.name.lower()
+    ]
 
     if len(txt_files) == 1:
         log_file = txt_files[0]
