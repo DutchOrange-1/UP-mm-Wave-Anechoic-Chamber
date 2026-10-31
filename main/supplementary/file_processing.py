@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 
 
-def extract_CO_POL(project_name):
+def compress_data(project_name):
     """_summary_
     project_name: What project data to extract
 
