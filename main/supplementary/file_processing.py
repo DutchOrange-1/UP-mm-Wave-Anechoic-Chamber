@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import pandas as pd
+from pathlib import Path
 
 
 def extract_CO_POL(project_name, azimuth_points):
@@ -18,7 +19,86 @@ def extract_CO_POL(project_name, azimuth_points):
     #     (expected_data_points, (180-expected_data_points[::-1])))
     # expected_data_points = np.round(expected_data_points, 3)
     # print(expected_data_points)
-    print(_extract_txt_manifest_info(data_path))
+    points, manifest_data = _extract_txt_manifest_info(data_path)
+
+    filenames = manifest_data["s2p_filename"].to_numpy()
+    # point_index = manifest_data["point_index"].to_numpy()
+    aut_rotation = manifest_data["aut_rotation_deg"].to_numpy()
+    boom_angle = manifest_data["boom_deg"].to_numpy()
+    # sweep_direction = manifest_data["sweep_direction"].to_numpy()
+
+    # print(manifest_data["s2p_filename"].to_numpy())
+    # print(manifest_data["aut_rotation_deg"].to_numpy())
+    # print(manifest_data["boom_deg"].to_numpy())
+
+    master_data = _extract_measurements(file_list, data_path)
+    print(master_data)
+
+
+def _extract_measurements(file_list, data_path):
+    data_path = Path(data_path)
+
+    def extract_angles(file):
+        filename = Path(file).name
+
+        elv = float(re.search(
+            r"ELV_(-?\d+(?:\.\d+)?)", filename
+        ).group(1))
+
+        azi = float(re.search(
+            r"AZI_(-?\d+(?:\.\d+)?)", filename
+        ).group(1))
+
+        return round(elv, 3), azi
+
+    # Sort by elevation, then azimuth
+    sorted_files = sorted(file_list, key=extract_angles)
+
+    master_data = []
+
+    for file in sorted_files:
+        filename = Path(file).name
+        file_path = data_path / filename
+
+        if not file_path.exists():
+            raise FileNotFoundError(f"{file_path} not found.")
+
+        elv, azi = extract_angles(filename)
+
+        data = np.loadtxt(file_path, skiprows=6, comments=('!', '#'))
+
+        freq = data[:, 0]
+
+        S11 = data[:, 1] + 1j * data[:, 2]
+        S21 = data[:, 3] + 1j * data[:, 4]
+        S12 = data[:, 5] + 1j * data[:, 6]
+        S22 = data[:, 7] + 1j * data[:, 8]
+
+        output_data = np.column_stack((
+            freq,
+            np.full(len(freq), azi),
+            np.full(len(freq), elv),
+            S11.real, S11.imag,
+            S12.real, S12.imag,
+            S21.real, S21.imag,
+            S22.real, S22.imag
+        ))
+
+        master_data.append(output_data)
+    return np.vstack(master_data)
+
+
+def _sort_measurement_files(file_list):
+
+    def extract_angles(file):
+        filename = Path(file).name
+
+        elv = float(re.search(r"ELV_(-?\d+(?:\.\d+)?)", filename).group(1))
+        azi = float(re.search(r"AZI_(-?\d+(?:\.\d+)?)", filename).group(1))
+
+        return round(elv, 3), azi
+
+    return sorted(file_list, key=extract_angles)
 
 
 def _extract_txt_manifest_info(data_path):
@@ -51,9 +131,9 @@ def _extract_txt_manifest_info(data_path):
         # Sort by acquisition index
         manifest = manifest.sort_values("point_index")
         # Extract filenames
-        filenames = manifest["s2p_filename"].to_numpy()
+        # filenames = manifest["s2p_filename"].to_numpy()
 
-        return azimuth_points, filenames
+        return azimuth_points, manifest
 
     else:
         raise FileNotFoundError(
