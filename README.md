@@ -40,3 +40,20 @@ The fix seems to be, to make a venv from miniconda3 only:
 ```
 C:\Users\me\miniconda3\python.exe -m venv .venv
 ```
+
+## Error connecting to VNA - pyvisa
+The easiest fix, was to use the lower level manager, this included changing:
+```py
+import pyvisa
+>>
+rm = pyvisa.ResourceManager()
+>>
+to
+<<
+rm = pyvisa.ResourceManager("@py")
+<<
+```
+Additionally make sure its installed:
+```
+python -m pip install -U pyvisa pyvisa-py
+```
