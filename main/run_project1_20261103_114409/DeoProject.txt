@@ -1,0 +1,9 @@
+Run started: 2026-11-03T12:01:32
+Scan type: ECO
+Frequency: 10.000-60.000 GHz, 301 points, IF bandwidth 1000 Hz
+Azimuth points per 90-degree pass: 4
+Expected total samples: 8
+Azimuth COM port: COM13 (sent as com2)
+Elevation COM port: COM12 (sent as com1)
+Project name: Demo (becomes the .s2p output folder name, per planer_scan())
+Output folder: C:\Users\bdegr\Documents\SyncedDrives\UP-mm-Wave-Anechoic-Chamber\main\run_project1_20261103_114409
