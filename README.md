@@ -1,4 +1,9 @@
-# mmWave Chamber at [CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim). 
+# mmWave Chamber at [CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim).
+|  |  |
+| :---: | :---: |
+| ![Alt text 1](./docs/Chamber1.jpeg) | ![Alt text 2](./docs/chamber2.jpeg) |
+| *View of enclosed mm chamber* | *WR15 (incorrect) Horn* |
+
 Where: Carl Emily Fuchs Institute for Microelectronics ([CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim))
 What: mm Wave Chamber
 Why: To Automatize data collection through the azimuth and vertical planes to generate 3D field patterns. 
@@ -7,16 +12,18 @@ Who: The Kimlings
 This program made use of code inspired by [SitwalaM](https://github.com/SitwalaM/cefim_vna_beagle). 
 
 # Background
-Please read this document on [planning](./Testing/planning/ConceptPlanning.MD).
+Please read this document on [planning](./Testing/planning/ConceptPlanning.MD). 
+Regarding the progression of this prject, please see [This Document on the progression](./docs/progression.md)
 
 # Installation of Program:
 Python, with the following packages. 
 ```
-python -m pip install PySide6 libximc pyvisa numpy pandas matplotlib
+python -m pip install PySide6 libximc pyvisa numpy pandas matplotlib pyqtgraph
 ```
 
 # Brief workings of program
-In Main, run the ``Chamber_ui.py``.  
+In Main run the ``chamber_scan_ui.py`` which plots the data and has added features. 
+In Main, run the ``Chamber_ui.py`` - OLD.  
 
 # Possible features to add:
 - Phase compensation during calibration. 
@@ -57,3 +64,7 @@ Additionally make sure its installed:
 ```
 python -m pip install -U pyvisa pyvisa-py
 ```
+
+## PC cant speak to VNA 
+Make sure to check the following settings 
+![Project diagram](./docs/DoTheseSettings.png)
