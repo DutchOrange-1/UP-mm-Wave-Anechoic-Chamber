@@ -13,7 +13,7 @@ import winsound
 progress = 0
 
 
-def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=10, wobble_pol=0.01,
+def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.5, wobble_pol=0.1,
                 main_boom_speed=4, polarization_speed=2000, com1="12", com2="13", project_name_global=""):
     """_summary_
     Quickest test is the ECO or HCO. 

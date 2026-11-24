@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_CO_Pol_mag(data_path):
+def plot_CO_Pol_mag(data_path, target_freq):
     """_summary_
         Assumes that the processed_XXX.txt exists in the data path.
 
@@ -18,11 +18,10 @@ def plot_CO_Pol_mag(data_path):
     df = pd.read_csv(file, sep="\t")
     df = df[df["ELV.deg"].isin([0, 180])]
 
-    start_freq = df.iat[0, 0]
     # end_freq = df.iat[-1, 0]
     # print(f"Start freq: {start_freq}, and end freq: {end_freq}")
 
-    df = df.loc[df['FREQ.HZ'] == start_freq]
+    df = df.loc[df['FREQ.HZ'] == target_freq]
 
     azi = df["AZI.deg"].to_numpy()
     S12 = (df["S12_RE"].to_numpy()+df["S12_IM"].to_numpy()*1j)

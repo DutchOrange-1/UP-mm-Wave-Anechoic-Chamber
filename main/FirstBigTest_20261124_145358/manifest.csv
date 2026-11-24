@@ -1,0 +1,2 @@
+point_index,s2p_filename,plane,polarisation,aut_rotation_deg,boom_deg,motor_elv_label_deg,sweep_direction
+1,FirstBigTest_ELV_0.00_AZI_0.00_1.s2p,E-plane,co,0,0.0,0.0,up

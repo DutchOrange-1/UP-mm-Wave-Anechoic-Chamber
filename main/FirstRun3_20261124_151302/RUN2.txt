@@ -1,0 +1,9 @@
+Run started: 2026-11-24T15:13:02
+Scan type: ECO
+Frequency: 50.000-90.000 GHz, 201 points, IF bandwidth 1000 Hz
+Azimuth points per 90-degree pass: 20
+Expected total samples: 40
+Azimuth COM port: COM13 (sent as com2)
+Elevation COM port: COM12 (sent as com1)
+Project name: FirstRun3 (start of every .s2p file name)
+Output folder: C:\Users\bdegr\Documents\SyncedDrives\UP-mm-Wave-Anechoic-Chamber\main\FirstRun3_20261124_151302 (.s2p files are in the s2p_data subfolder)
