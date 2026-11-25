@@ -123,6 +123,7 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
         time.sleep(wobble_pol)
 
     def take_sample(pos, azi_pos):
+        # return
         global progress
         progress += 1
         # print("data_points (take sample): " + str(data_points))
@@ -152,7 +153,7 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
         winsound.PlaySound("./supplementary/finish_audio.wav",
                            winsound.SND_FILENAME)
 
-    def scan_AUT_CO_CROSS(azimuth_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
+    def scan_AUT_all_Pols(azimuth_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
         """
         Does co and cross pol
 
@@ -220,9 +221,9 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             except Exception as e:
                 logging.error(f"Could not stop elevation: {e}")
 
-    def scan_AUT_CO_Only(azimuth_points=9, pos1=0, pos2=180):
+    def scan_AUT_POL_Only(azimuth_points=9, pos1=0, pos2=180):
         """
-        Does co pol only
+        Does one pol only
 
         Parameters:
         azimuth_points=9,
@@ -239,6 +240,7 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
             azi_axis.open_device()
             elev_axis.open_device()
 
+            logging.info("Pos1: %d Pos2: %d", pos1, pos2)
             # Get current position
             logging.info("Initial position - azimuth: %s",
                          str(azi_axis.get_position().Position))
@@ -280,24 +282,30 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.1, wobble_pol=
 
     #########
     # Program To Be Selected
-    if type == 'E':
-        logging.info("Doing E-Plane Co and Cross")
-        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=0,
-                          pos2=180, pos3=90, pos4=270)
+        """_summary_
+            MAKE SURE TO HOME THE BOTTOM MOTOR TO 
+            So 0 is home, but its 90 degrees out. So everything needs +90 deg, EXCEPT for the CROSS Pol. 
+        """
 
-    elif type == 'ECO':
-        logging.info("Doing E-Plane Co only")
-        scan_AUT_CO_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
+    # This needs to be checked !!
+    if type == 'COCROSS':
+        logging.info("WARNING - HAS NOT BEEN TESTED")
+        logging.info("WARNING - HAS NOT BEEN TESTED")
+        logging.info("WARNING - HAS NOT BEEN TESTED")
+        logging.info("WARNING - HAS NOT BEEN TESTED")
+        logging.info("WARNING - HAS NOT BEEN TESTED")
 
-    elif type == 'H':
-        logging.info("Doing H-Plane Co and Cross")
-        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=0,
-                          pos2=180, pos3=90, pos4=270)
+        logging.info("Doing Co And Cross Pol")
+        scan_AUT_all_Pols(azimuth_points=azimuth_points,
+                          pos1=0, pos2=180, pos3=90, pos4=270)
 
-    elif type == 'HCO':
-        logging.info("Doing H-Plane Co only")
-        scan_AUT_CO_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
+    elif type == 'CO':
+        logging.info("Doing CO POL Only")
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
 
+    elif type == 'CROSS':
+        logging.info("Doing CROSS POL Only")
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0, pos2=45)
     else:
         logging.warning("%s Is not a valid selection", type)
 

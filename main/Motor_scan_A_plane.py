@@ -278,11 +278,11 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
     # Program To Be Selected
     if type == 'CO':
         logging.info("Doing CO Plane Only")
-        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=90, pos2=270)
 
     elif type == 'CROSS':
         logging.info("Doing Cross Plane Only")
-        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=90, pos2=270)
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
 
     elif type == 'COCROSS':
         logging.info("Doing Co and Cross")
