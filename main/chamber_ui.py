@@ -178,19 +178,19 @@ def build_expected_manifest(scan_type: str, azimuth_points: int) -> list[dict]:
     elev_positions = np.linspace(0, 90, azimuth_points)
     plane = "E-plane" if scan_type in ("E", "ECO", "ECROSS") else "H-plane"
 
-    if scan_type in ("E", "H"):
+    if scan_type in ("COCROSS"):
         passes = [
             (0, "co", elev_positions, "up"),
             (180, "co", elev_positions[::-1], "down"),
             (90, "cross", elev_positions, "up"),
             (270, "cross", elev_positions[::-1], "down"),
         ]
-    elif scan_type in ("ECO", "HCO"):
+    elif scan_type in ("CO"):
         passes = [
             (0, "co", elev_positions, "up"),
             (180, "co", elev_positions[::-1], "down"),
         ]
-    elif scan_type in ("ECROSS", "HCROSS"):
+    elif scan_type in ("CROSS"):
         passes = [
             (90, "cross", elev_positions, "up"),
             (270, "cross", elev_positions[::-1], "down"),
@@ -887,13 +887,13 @@ class ScanPanel(QWidget):
         self._start_ghz = QDoubleSpinBox()
         self._start_ghz.setRange(0.07, 220.0)
         self._start_ghz.setDecimals(3)
-        self._start_ghz.setValue(50.0)
+        self._start_ghz.setValue(70.0)
         self._start_ghz.setSuffix(" GHz")
 
         self._stop_ghz = QDoubleSpinBox()
         self._stop_ghz.setRange(0.07, 220.0)
         self._stop_ghz.setDecimals(3)
-        self._stop_ghz.setValue(60.0)
+        self._stop_ghz.setValue(110.0)
         self._stop_ghz.setSuffix(" GHz")
 
         self._points = QSpinBox()

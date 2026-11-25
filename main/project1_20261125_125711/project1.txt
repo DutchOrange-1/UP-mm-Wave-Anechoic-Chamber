@@ -1,0 +1,11 @@
+Run started: 2026-11-25T12:57:11
+Scan type: CROSS
+Frequency: 70.000-110.000 GHz, 201 points, IF bandwidth 1000 Hz
+VNA averaging: OFF (1)
+Azimuth points per 90-degree pass: 3
+Sleep time (wobble_time_azimuth): 1.00 s
+Expected total samples: 12
+Azimuth COM port: COM13 (sent as com2)
+Elevation COM port: COM12 (sent as com1)
+Project name: project1 (start of every .s2p file name)
+Output folder: C:\Users\bdegr\Documents\SyncedDrives\UP-mm-Wave-Anechoic-Chamber\main\project1_20261125_125711 (Compressed to project1_s2p_data.zip after scan)
