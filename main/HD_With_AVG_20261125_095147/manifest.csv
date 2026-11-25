@@ -1,4 +1,0 @@
-point_index,s2p_filename,plane,polarisation,aut_rotation_deg,boom_deg,motor_elv_label_deg,sweep_direction
-1,HD_With_AVG_ELV_0.00_AZI_0.00_1.s2p,E-plane,co,0,0.0,0.0,up
-2,HD_With_AVG_ELV_3.75_AZI_0.00_2.s2p,E-plane,co,0,3.75,3.75,up
-3,HD_With_AVG_ELV_7.50_AZI_0.00_3.s2p,E-plane,co,0,7.5,7.5,up
