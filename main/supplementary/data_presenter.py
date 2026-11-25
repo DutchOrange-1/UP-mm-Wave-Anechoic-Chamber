@@ -218,3 +218,60 @@ def plot_Cross_Pol_Heat_map(data_path):
 
     plt.tight_layout()
     plt.show()
+
+
+def plot_S_phase(data_path, elevation_pos=[0, 180], freq=70e9):
+    """_summary_
+    Args:
+        data_path (_type_): _description_
+        port (str, optional): _description_. Defaults to 'S11'.
+        position (int, optional): _description_. Defaults to 180.
+    """
+
+    txt_files = list(data_path.glob("processed_*.txt"))
+    file = txt_files[0]
+
+    print(f"Processing Phase Plot: --- {file.name} ---")
+    try:
+        print("Running Plot")
+        df = pd.read_csv(file, sep="\t")
+
+        if freq in df["FREQ.HZ"].values:
+            print("Frequency found:", freq/10e9, "GHz")
+        else:
+            print("Frequency not found:", freq/10e9, "GHz")
+
+        print("Checking for these positions on turntable/Elev: ", elevation_pos)
+        #  Extract Data for one freq, and for one elevation
+        df = df[df["ELV.deg"].isin(elevation_pos)]
+        df = df[df["FREQ.HZ"].isin([freq])]
+
+        S11 = df["S11_RE"] + 1j * df["S11_IM"]
+        S22 = df["S22_RE"] + 1j * df["S22_IM"]
+
+        # Convert frequency from Hz to GHz
+        # df["Frequency_GHz"] = df["FREQ.HZ"] / 1e9
+        azimuth = df["AZI.deg"]
+
+        fig, ax1 = plt.subplots()
+
+        ax2 = ax1.twinx()
+
+        ax1.plot(df["AZI.deg"], np.unwrap(np.angle(S11, deg=True)),
+                 'b-', label="S11 Phase")
+
+        ax2.plot(df["AZI.deg"], np.unwrap(np.angle(S22, deg=True)),
+                 'r-', label="S22 Phase")
+
+        ax1.set_xlabel("Azimuth (degrees)")
+        ax1.set_ylabel("S11 Phase (degrees)", color='b')
+        ax2.set_ylabel("S22 Phase (degrees)", color='r')
+
+        ax1.grid()
+
+        plt.title("S11 and S22 Phase vs Azimuth")
+
+        plt.show()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
