@@ -120,48 +120,52 @@ def plot_CO_Pol_Heat_map(data_path):
     file = txt_files[0]
 
     print(f"Processing Co Pol heat map: --- {file.name} ---")
+    try:
+        print("Running Plot")
+        df = pd.read_csv(file, sep="\t")
+        #  Extract CO Pole
+        df = df[df["ELV.deg"].isin([0, 180])]
 
-    df = pd.read_csv(file, sep="\t")
-    #  Extract CO Pole
-    df = df[df["ELV.deg"].isin([0, 180])]
+        # Calculate gain from S21
+        S21 = df["S21_RE"] + 1j * df["S21_IM"]
+        # S21 = 50 * (1+S21) / (1-S21)
+        df["Gain_dB"] = 20 * np.log10(np.abs(S21))
 
-    # Calculate gain from S21
-    S21 = df["S21_RE"] + 1j * df["S21_IM"]
-    df["Gain_dB"] = 20 * np.log10(np.abs(S21))
+        # Convert frequency from Hz to GHz
+        df["Frequency_GHz"] = df["FREQ.HZ"] / 1e9
 
-    # Convert frequency from Hz to GHz
-    df["Frequency_GHz"] = df["FREQ.HZ"] / 1e9
+        # Create 2D grid: frequency rows, azimuth columns
+        heatmap_data = df.pivot_table(
+            index="Frequency_GHz",
+            columns="AZI.deg",
+            values="Gain_dB"
+        )
 
-    # Create 2D grid: frequency rows, azimuth columns
-    heatmap_data = df.pivot_table(
-        index="Frequency_GHz",
-        columns="AZI.deg",
-        values="Gain_dB"
-    )
+        # Sort axes
+        heatmap_data = heatmap_data.sort_index().sort_index(axis=1)
 
-    # Sort axes
-    heatmap_data = heatmap_data.sort_index().sort_index(axis=1)
+        # Plot
+        plt.figure(figsize=(12, 7))
 
-    # Plot
-    plt.figure(figsize=(12, 7))
+        plt.pcolormesh(
+            heatmap_data.columns,
+            heatmap_data.index,
+            heatmap_data.values,
+            shading="auto",
+            cmap="jet"
+        )
 
-    plt.pcolormesh(
-        heatmap_data.columns,
-        heatmap_data.index,
-        heatmap_data.values,
-        shading="auto",
-        cmap="jet"
-    )
+        plt.colorbar(label="Gain (dB)")
 
-    plt.colorbar(label="Gain (dB)")
+        plt.xlabel("Azimuth (degrees)")
+        plt.ylabel("Frequency (GHz)")
+        plt.title(
+            f"CO-POL Antenna Gain Radiation Pattern - Data points: {len(S21)} ")
 
-    plt.xlabel("Azimuth (degrees)")
-    plt.ylabel("Frequency (GHz)")
-    plt.title(
-        f"CO-POL Antenna Gain Radiation Pattern - Data points: {len(S21)} ")
-
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
+    except ZeroDivisionError:
+        print("ERRORR In PLOT")
 
 
 def plot_Cross_Pol_Heat_map(data_path):

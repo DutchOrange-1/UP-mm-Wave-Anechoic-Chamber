@@ -32,7 +32,7 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
 
     Args:
         azimuth_points (int, optional): _description_. Defaults to 3.
-        type (str, optional): _description_. Defaults to 'E'.
+        type (str, optional): _description_. Defaults to 'CO'.
         wobble_time_azimuth (float, optional): _description_. Defaults to 0.1.
         wobble_pol (float, optional): _description_. Defaults to 0.01.
         main_boom_speed (int, optional): _description_. Defaults to 4.
@@ -174,7 +174,7 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
                          str(azi_axis.get_position().Position))
             logging.info("Initial position - Elevation: %s",
                          str(elev_axis.get_position().Position))
-            time_estimate(azi_rotations=4)
+            # time_estimate(azi_rotations=4)
 
             time.sleep(5)
             # Homing
@@ -240,7 +240,7 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
                          str(azi_axis.get_position().Position))
             logging.info("Initial position - Elevation: %s",
                          str(elev_axis.get_position().Position))
-            time_estimate(azi_rotations=4)
+            # time_estimate(azi_rotations=4)
 
             time.sleep(5)
             # Homing
@@ -286,7 +286,7 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
 
     elif type == 'COCROSS':
         logging.info("Doing Co and Cross")
-        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0,
+        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=0,
                           pos2=180, pos3=90, pos4=270)
 
     else:
