@@ -117,9 +117,12 @@ DEFAULT_AVG_COUNT = 16       # default count shown when the user enables VNA ave
 # --------------------------------------------------------------------------
 
 SCAN_TYPES = {
-    "CO": "Co pol only",
-    "CROSS": "Cross Pol only",
-    "COCROSS": "CO and Cross",
+    # "CO": "Co pol only",
+    # "CROSS": "Cross Pol only",
+    # "COCROSS": "CO and Cross",
+    "Co pol only": "CO",
+    "Cross Pol only": "CROSS",
+    "CO and Cross": "COCROSS",
     # "E-plane Co & Cross": "E",
     # "E-plane Co only": "ECO",
     # "E-plane Cross only": "ECROSS",
@@ -198,7 +201,8 @@ def build_expected_manifest(scan_type: str, azimuth_points: int) -> list[dict]:
     manifest: list[dict] = []
     for aut_deg, pol, positions, direction in passes:
         for boom_deg in positions:
-            elv_label = float(boom_deg) if direction == "up" else 180 - float(boom_deg)
+            elv_label = float(
+                boom_deg) if direction == "up" else 180 - float(boom_deg)
             manifest.append(
                 {
                     "plane": plane,
@@ -259,7 +263,8 @@ def _make_finish_sound_safe(launch_cwd: str) -> None:
                         sound = candidate
                         break
                 else:
-                    logging.warning("Finish sound %s not found; skipping it.", sound)
+                    logging.warning(
+                        "Finish sound %s not found; skipping it.", sound)
                     return
             original(sound, flags)
         except Exception as exc:
@@ -332,7 +337,8 @@ def _run_scan_process(config: ScanConfig, log_queue: mp.Queue, stop_event) -> No
             project_name_global=config.project_name,
         )
         if stop_event.is_set():
-            logging.info("Scan aborted: motors were stopped and homed by the motor script.")
+            logging.info(
+                "Scan aborted: motors were stopped and homed by the motor script.")
         else:
             logging.info("Scan complete.")
             ok = True
@@ -428,7 +434,8 @@ def _run_preset_vna_process(log_queue: mp.Queue, stop_event) -> None:
     ok = False
     vna_interface = None
     try:
-        logging.info("Connecting to VNA for preset (this may take up to 2 minutes)...")
+        logging.info(
+            "Connecting to VNA for preset (this may take up to 2 minutes)...")
         try:
             import anritsu_vectorstar_vna_interface as vna_interface
         except Exception as exc:
@@ -454,6 +461,7 @@ def _run_preset_vna_process(log_queue: mp.Queue, stop_event) -> None:
 # GUI-side controller.
 # --------------------------------------------------------------------------
 
+
 @dataclass
 class _PendingPoint:
     row: dict
@@ -465,7 +473,8 @@ class ScanController(QObject):
     log_line = Signal(str)
     progress = Signal(int, int)   # done, total
     point_logged = Signal(dict)
-    point_data = Signal(dict, object)   # manifest row, S2PData read from its .s2p file
+    # manifest row, S2PData read from its .s2p file
+    point_data = Signal(dict, object)
     finished = Signal()
     failed = Signal(str)
 
@@ -501,7 +510,8 @@ class ScanController(QObject):
 
     def start_homing(self, elevation_com_port: str, azimuth_com_port: str) -> None:
         self._reset_non_scan_state()
-        self._launch_worker(_run_home_process, (elevation_com_port, azimuth_com_port))
+        self._launch_worker(_run_home_process,
+                            (elevation_com_port, azimuth_com_port))
 
     def start_vna_preset(self) -> None:
         self._reset_non_scan_state()
@@ -529,7 +539,8 @@ class ScanController(QObject):
         self._poll_timer.start()
 
     def _prepare_run(self, config: ScanConfig) -> None:
-        self._manifest = build_expected_manifest(config.scan_type, config.azimuth_points)
+        self._manifest = build_expected_manifest(
+            config.scan_type, config.azimuth_points)
         self._manifest_index = 0
 
         config.output_dir.mkdir(parents=True, exist_ok=True)
@@ -602,10 +613,12 @@ class ScanController(QObject):
         zip_path = self._output_dir / f"{self._project_name}_s2p_data.zip"
         if zip_path.exists():
             stamp = datetime.datetime.now().strftime("%H%M%S")
-            zip_path = self._output_dir / f"{self._project_name}_s2p_data_{stamp}.zip"
+            zip_path = self._output_dir / \
+                f"{self._project_name}_s2p_data_{stamp}.zip"
         tmp_path = zip_path.with_suffix(".zip.tmp")
 
-        self.log_line.emit(f"Compressing {len(files)} .s2p file(s) to {zip_path.name}...")
+        self.log_line.emit(
+            f"Compressing {len(files)} .s2p file(s) to {zip_path.name}...")
         try:
             raw_bytes = sum(f.stat().st_size for f in files)
             with zipfile.ZipFile(
@@ -618,9 +631,11 @@ class ScanController(QObject):
             with zipfile.ZipFile(tmp_path, "r") as zf:
                 bad_member = zf.testzip()
                 if bad_member is not None:
-                    raise zipfile.BadZipFile(f"CRC check failed for {bad_member}")
+                    raise zipfile.BadZipFile(
+                        f"CRC check failed for {bad_member}")
                 if len(zf.namelist()) != len(files):
-                    raise RuntimeError("Archive file count did not match source .s2p count")
+                    raise RuntimeError(
+                        "Archive file count did not match source .s2p count")
 
             tmp_path.replace(zip_path)
             zip_bytes = zip_path.stat().st_size
@@ -632,7 +647,8 @@ class ScanController(QObject):
             except OSError:
                 pass
 
-            saved_pct = (1.0 - (zip_bytes / raw_bytes)) * 100.0 if raw_bytes else 0.0
+            saved_pct = (1.0 - (zip_bytes / raw_bytes)) * \
+                100.0 if raw_bytes else 0.0
             self.log_line.emit(
                 f"Compressed {len(files)} .s2p file(s) -> {zip_path.name} "
                 f"({raw_bytes / 1e6:.2f} MB -> {zip_bytes / 1e6:.2f} MB, "
@@ -799,13 +815,15 @@ class ScanController(QObject):
             except (ValueError, OSError) as exc:
                 item.parse_failures += 1
                 if item.parse_failures >= 5 or final:
-                    self.log_line.emit(f"Live plot: could not read {path.name}: {exc}")
+                    self.log_line.emit(
+                        f"Live plot: could not read {path.name}: {exc}")
                 else:
                     item.last_size = -1
                     waiting.append(item)
                 continue
             if not self._announced_s2p_dir:
-                self.log_line.emit(f"Live plot: reading .s2p files from {path.parent}")
+                self.log_line.emit(
+                    f"Live plot: reading .s2p files from {path.parent}")
                 self._announced_s2p_dir = True
             self.point_data.emit(item.row, data)
         self._pending = waiting
@@ -897,7 +915,8 @@ class ScanPanel(QWidget):
         self._avg_count.setRange(2, 1024)
         self._avg_count.setValue(DEFAULT_AVG_COUNT)
         self._avg_count.setEnabled(False)
-        self._avg_count.setToolTip("Number of measurements to average (2-1024).")
+        self._avg_count.setToolTip(
+            "Number of measurements to average (2-1024).")
 
         self._avg_type = QComboBox()
         self._avg_type.addItems(list(AVG_TYPES.keys()))
@@ -933,7 +952,8 @@ class ScanPanel(QWidget):
         self._az_points = QSpinBox()
         self._az_points.setRange(2, 500)
         self._az_points.setValue(9)
-        self._az_points.setToolTip("Number of boom positions per 0-90 degree pass")
+        self._az_points.setToolTip(
+            "Number of boom positions per 0-90 degree pass")
 
         self._sleep_time = QDoubleSpinBox()
         self._sleep_time.setRange(0.0, 300.0)
@@ -1009,9 +1029,11 @@ class ScanPanel(QWidget):
             "Automatically matches the project name (<project_name>.txt) and is "
             "saved in the output folder alongside manifest.csv and the .s2p data."
         )
-        self._project_name_edit.textChanged.connect(self._on_project_name_changed)
+        self._project_name_edit.textChanged.connect(
+            self._on_project_name_changed)
 
-        self._compress_s2p_box = QCheckBox("Compress .s2p files to .zip after scan")
+        self._compress_s2p_box = QCheckBox(
+            "Compress .s2p files to .zip after scan")
         self._compress_s2p_box.setChecked(True)
         self._compress_s2p_box.setToolTip(
             "After all measurements finish and are plotted, compress s2p_data/*.s2p "
@@ -1168,7 +1190,8 @@ class ScanPanel(QWidget):
         azimuth_com = self._azimuth_com_edit.text().strip()
         elevation_com = self._elevation_com_edit.text().strip()
         if not azimuth_com or not elevation_com:
-            self._append_log("Both Azimuth and Elevation COM ports must be set before homing.")
+            self._append_log(
+                "Both Azimuth and Elevation COM ports must be set before homing.")
             return
 
         self._current_action = "Homing"
