@@ -1,10 +1,11 @@
 
 # Code written by Thelma Kwedza , 19/09/2026
 # Code  covers the connection between the VNA(VectorStar MS46470A Series) and the PC .
-# Code supports a sinfle frequency sweep at a time and
+# Code supports a sinfle frequency sweep at a time and time, averaging, and instrument preset.
 import os
 import pyvisa
 
+_BASE_TIMEOUT_MS = 30000
 
 # Connection
 
@@ -14,7 +15,7 @@ print(rm.list_resources())
 inst = rm.open_resource('TCPIP::10.0.0.2::INSTR')
 inst.read_termination = '\n'
 inst.write_termination = '\n'
-inst.timeout = 30000
+inst.timeout = _BASE_TIMEOUT_MS
 print(inst.query("*IDN?"))
 
 CHANNEL = 1
@@ -22,7 +23,8 @@ SPARAM_LIST = ["S11", "S21", "S12", "S22"]
 OUTPUT_DIR = "s2p_data"
 
 _point_counter = 0
-
+_num_averages = 1
+_avg_type = "point"
 
 # check_and_report_errors
 
@@ -70,11 +72,20 @@ def _ask_frequency_sweep_parameters_for_manual_test():
 
     return {"f_start": f_start, "f_stop": f_stop, "num_points": num_points, "ifbw": ifbw}
 
+#Preset VNA: returns the VectorStar to its preset state
+def preset_func():
+    old_timeout = inst.timeout
+    inst.timeout = 120000            # 2 minutes, a preset is slow
+    try:
+        inst.write(":SYSTem:PRESet")
+        inst.query("*OPC?")          # blocks until the preset is finished
+    finally:
+        inst.timeout = old_timeout   # restore even if something fails
+    check_and_report_errors("after preset")
 
 # VNA Setup - Call the funtion once before the motion is called
 
 def setup_vna(f_start_hz, f_stop_hz, num_points, ifbw_hz=1000.0):
-
     inst.clear()
     inst.write("LANG NATIVE")
     inst.write(":SYSTem:ERRor:CLEar")
@@ -100,6 +111,79 @@ def setup_vna(f_start_hz, f_stop_hz, num_points, ifbw_hz=1000.0):
     print(f"VNA configured: {f_start_hz/1e9:.3f}-{f_stop_hz/1e9:.3f} GHz, "
           f"{num_points} points, S11/S21/S12/S22, ready for sweeps.")
 
+# Averaging - call once after setup_vna() and before the motion is called.
+#   num_averages : 1 turns averaging off; 2-1024 turns it on with that count.
+#   avg_type     : "point" (recommended: one trigger per position still gives
+#                  the finished average) or "sweep" (N full sweeps are run
+#                  and averaged, so sweep_and_save() triggers N times).
+
+# Averaging - call once after setup_vna() and before the motion is called.
+# This is the function a UI calls with whatever number the user picked.
+#   num_averages : 1 turns averaging off; 2-1024 turns it on with that count.
+#   avg_type     : "point" (recommended: one trigger per position still gives
+#                  the finished average) or "sweep" (N full sweeps are run
+#                  and averaged, so sweep_and_save() triggers N times).
+
+def set_averaging(num_averages=1, avg_type="point"):
+    global _num_averages, _avg_type
+
+    try:
+        n = int(float(num_averages))
+        if n != float(num_averages):
+            raise ValueError
+    except (TypeError, ValueError):
+        raise ValueError(
+            f"num_averages must be a whole number between 1 and 1024, "
+            f"got {num_averages!r} instead.")
+    if not 1 <= n <= 1024:
+        raise ValueError(
+            f"num_averages must be between 1 and 1024 (the VNA's limit), "
+            f"got {n}.")
+
+    avg_type_norm = str(avg_type).strip().lower()
+    if avg_type_norm not in ("point", "sweep"):
+        raise ValueError(
+            f"avg_type must be 'point' or 'sweep', got {avg_type!r} instead.")
+
+    if n == 1:
+        inst.write(f":SENSe{CHANNEL}:AVERage:STATe OFF")
+    else:
+        scpi_type = "POINt" if avg_type_norm == "point" else "SWEep"
+        inst.write(f":SENSe{CHANNEL}:AVERage:TYPe {scpi_type}")
+        inst.write(f":SENSe{CHANNEL}:AVERage:COUNt {n}")
+        inst.write(f":SENSe{CHANNEL}:AVERage:STATe ON")
+    check_and_report_errors("after averaging setup")
+
+    # Read back what the instrument actually accepted, not what was sent.
+    state = inst.query(f":SENSe{CHANNEL}:AVERage:STATe?").strip()
+    state_on = state in ("1", "+1", "ON")
+    if n == 1:
+        if state_on:
+            print("*** WARNING: averaging was asked to turn OFF but the "
+                  "VNA reports it is still ON. ***")
+    else:
+        count_back = int(float(
+            inst.query(f":SENSe{CHANNEL}:AVERage:COUNt?").strip()))
+        if not state_on or count_back != n:
+            print(f"*** WARNING: asked for {n} averages ON, VNA reports "
+                  f"state={state!r}, count={count_back}. ***")
+
+    _num_averages = n
+    _avg_type = avg_type_norm
+
+    # Point averaging makes ONE trigger take about N times as long, so the
+    # VISA timeout has to grow with it. Sweep averaging triggers one sweep
+    # at a time, so the base timeout is enough.
+    if n > 1 and avg_type_norm == "point":
+        inst.timeout = min(_BASE_TIMEOUT_MS * n, 600000)
+    else:
+        inst.timeout = _BASE_TIMEOUT_MS
+
+    if n == 1:
+        print("Averaging OFF (single measurement per point).")
+    else:
+        print(f"Averaging ON: {n} measurements, {avg_type_norm}-by-"
+              f"{avg_type_norm}.")
 
 def _read_arbitrary_block_text():
     first = inst.read_bytes(1)
