@@ -1,0 +1,9 @@
+Run started: 2026-11-25T08:55:37
+Scan type: ECO
+Frequency: 50.000-100.000 GHz, 601 points, IF bandwidth 1000 Hz
+Azimuth points per 90-degree pass: 30
+Expected total samples: 60
+Azimuth COM port: COM13 (sent as com2)
+Elevation COM port: COM12 (sent as com1)
+Project name: HD_Test (start of every .s2p file name)
+Output folder: C:\Users\bdegr\Documents\SyncedDrives\UP-mm-Wave-Anechoic-Chamber\main\HD_Test_20261125_085537 (.s2p files are in the s2p_data subfolder)
