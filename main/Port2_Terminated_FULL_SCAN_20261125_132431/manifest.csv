@@ -1,0 +1,4 @@
+point_index,s2p_filename,plane,polarisation,aut_rotation_deg,boom_deg,motor_elv_label_deg,sweep_direction
+1,Port2_Terminated_FULL_SCAN_ELV_0.00_AZI_0.00_1.s2p,H-plane,co,0,0.0,0.0,up
+2,Port2_Terminated_FULL_SCAN_ELV_4.74_AZI_0.00_2.s2p,H-plane,co,0,4.7368,4.7368,up
+3,Port2_Terminated_FULL_SCAN_ELV_9.47_AZI_0.00_3.s2p,H-plane,co,0,9.4737,9.4737,up

@@ -108,7 +108,7 @@ DEFAULT_ELEVATION_COM_PORT = "12"
 DEFAULT_PROJECT_NAME = "project1"
 DEFAULT_SLEEP_TIME_S = 1.0  # wobble_time_azimuth default (seconds)
 DEFAULT_SLEEP_STEP_S = 0.2   # default up/down increment for the sleep time spinbox
-DEFAULT_AVG_COUNT = 8       # default count shown when the user enables VNA averaging
+DEFAULT_AVG_COUNT = 4       # default count shown when the user enables VNA averaging
 
 # --------------------------------------------------------------------------
 # Type of scan:
@@ -156,7 +156,7 @@ class ScanConfig:
     azimuth_points: int    # number of angular positions per 90 degree boom sweep pass
     output_dir: Path       # output directory where .s2p and manifest.csv are saved
     wobble_time_azimuth: float = DEFAULT_SLEEP_TIME_S
-    vna_averages: int = 1  # 1 = averaging OFF; 2..1024 = averaging ON
+    vna_averages: int = 2  # 1 = averaging OFF; 2..1024 = averaging ON
     vna_avg_type: str = "point"  # "point" | "sweep"
     compress_s2p: bool = True
     azimuth_com_port: str = DEFAULT_AZIMUTH_COM_PORT

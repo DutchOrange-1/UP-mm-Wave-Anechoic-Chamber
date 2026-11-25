@@ -286,8 +286,8 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
 
     elif type == 'COCROSS':
         logging.info("Doing Co and Cross")
-        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=0,
-                          pos2=180, pos3=90, pos4=270)
+        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=90,
+                          pos2=270, pos3=0, pos4=180)
 
     else:
         logging.warning("%s Is not a valid selection [CO CROSS COCROSS]", type)
