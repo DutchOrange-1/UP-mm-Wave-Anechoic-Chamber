@@ -106,9 +106,9 @@ except ImportError as _exc:
 DEFAULT_AZIMUTH_COM_PORT = "13"
 DEFAULT_ELEVATION_COM_PORT = "12"
 DEFAULT_PROJECT_NAME = "project1"
-DEFAULT_SLEEP_TIME_S = 10.0  # wobble_time_azimuth default (seconds)
-DEFAULT_SLEEP_STEP_S = 1.0   # default up/down increment for the sleep time spinbox
-DEFAULT_AVG_COUNT = 16       # default count shown when the user enables VNA averaging
+DEFAULT_SLEEP_TIME_S = 1.0  # wobble_time_azimuth default (seconds)
+DEFAULT_SLEEP_STEP_S = 0.2   # default up/down increment for the sleep time spinbox
+DEFAULT_AVG_COUNT = 8       # default count shown when the user enables VNA averaging
 
 # --------------------------------------------------------------------------
 # Type of scan:
