@@ -1,7 +1,7 @@
 # mmWave Chamber at [CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim).
 |  |  |
 | :---: | :---: |
-| ![Alt text 1](./docs/Chamber1.jpeg) | ![Alt text 2](./docs/chamber2.jpeg) |
+| ![Alt text 1](./docs/images/Chamber1.jpeg) | ![Alt text 2](./docs/images/chamber2.jpeg) |
 | *View of enclosed mm chamber* | *WR15 (incorrect) Horn* |
 
 Where: Carl Emily Fuchs Institute for Microelectronics ([CEFIM](https://www.up.ac.za/carl-emily-fuchs-institute-for-microelectronics-cefim))
@@ -67,4 +67,4 @@ python -m pip install -U pyvisa pyvisa-py
 
 ## PC cant speak to VNA 
 Make sure to check the following settings 
-![Project diagram](./docs/DoTheseSettings.png)
+![Project diagram](./docs/images/DoTheseSettings.png)

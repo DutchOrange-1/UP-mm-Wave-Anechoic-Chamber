@@ -178,8 +178,8 @@ def plot_Cross_Pol_Heat_map(data_path):
     print(f"Processing Cross Pol Heat Map: --- {file.name} ---")
 
     df = pd.read_csv(file, sep="\t")
-    #  Extract CO Pole
-    df = df[df["ELV.deg"].isin([90, 270])]
+    #  Extract CROSS Pole
+    df = df[df["ELV.deg"].isin([0, 180])]
 
     # Calculate gain from S21
     S21 = df["S21_RE"] + 1j * df["S21_IM"]
