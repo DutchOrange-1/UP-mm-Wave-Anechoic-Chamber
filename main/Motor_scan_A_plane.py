@@ -13,10 +13,10 @@ import winsound
 progress = 0
 
 
-def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.5, wobble_pol=0.1,
+def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol=0.1,
                 main_boom_speed=4, polarization_speed=2000, com1="12", com2="13", project_name_global=""):
     """_summary_
-    Quickest test is the ECO or HCO. 
+    Quickest test is the ECO. 
     Please note that the sampling / data collection code can be found in take_sample(). 
 
     This code is only for co and cross polarization. For E/H Plane, CO and CROSS. 
@@ -25,13 +25,9 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.5, wobble_pol=
     The Azimuth will sweep back down to the bottom. This is the Co-pol. 
 
     If the Co and cross pol mode is selected, the AUT will then turn to 90 deg, and then 270 deg.
-    type = 'E'   - Co and Cross
-    type = 'ECO'  - plane - Co only
-    type = 'H'   - H Co and Cross
-    type = 'HCO' - Co pole only
-
-    Note - E/H and ECO/HCO are the exact same code. H and E are dependant on the Feed antenna position. 
-
+    type = 'CO'   - Co pol only
+    type = 'CROSS'  - Cross Pol only
+    type = 'COCROSS'   - CO and Cross
     main_boom_speed and polarization_speed should not be touched, unless different motors are used. 
 
     Args:
@@ -220,9 +216,9 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.5, wobble_pol=
             except Exception as e:
                 logging.error(f"Could not stop elevation: {e}")
 
-    def scan_AUT_CO_Only(azimuth_points=9, pos1=0, pos2=180):
+    def scan_AUT_POL_Only(azimuth_points=9, pos1=0, pos2=180):
         """
-        Does co pol only
+        Does co pol OR Cross pol only
 
         Parameters:
         azimuth_points=9,
@@ -280,26 +276,21 @@ def planer_scan(azimuth_points=3, type='E', wobble_time_azimuth=0.5, wobble_pol=
 
     #########
     # Program To Be Selected
-    if type == 'E':
-        logging.info("Doing E-Plane Co and Cross")
-        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=0,
+    if type == 'CO':
+        logging.info("Doing CO Plane Only")
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
+
+    elif type == 'CROSS':
+        logging.info("Doing Cross Plane Only")
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=90, pos2=270)
+
+    elif type == 'COCROSS':
+        logging.info("Doing Co and Cross")
+        scan_AUT_POL_Only(azimuth_points=azimuth_points, pos1=0,
                           pos2=180, pos3=90, pos4=270)
-
-    elif type == 'ECO':
-        logging.info("Doing E-Plane Co only")
-        scan_AUT_CO_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
-
-    elif type == 'H':
-        logging.info("Doing H-Plane Co and Cross")
-        scan_AUT_CO_CROSS(azimuth_points=azimuth_points, pos1=0,
-                          pos2=180, pos3=90, pos4=270)
-
-    elif type == 'HCO':
-        logging.info("Doing H-Plane Co only")
-        scan_AUT_CO_Only(azimuth_points=azimuth_points, pos1=0, pos2=180)
 
     else:
-        logging.warning("%s Is not a valid selection", type)
+        logging.warning("%s Is not a valid selection [CO CROSS COCROSS]", type)
 
     # Go Back
     homing()
