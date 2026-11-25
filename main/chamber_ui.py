@@ -117,9 +117,9 @@ DEFAULT_AVG_COUNT = 16       # default count shown when the user enables VNA ave
 # --------------------------------------------------------------------------
 
 SCAN_TYPES = {
-    "Co & Cross Pol": "E",
-    "Co Pol": "ECO",
-    "Cross Pol": "ECROSS",
+    "CO": "Co pol only",
+    "CROSS": "Cross Pol only",
+    "COCROSS": "CO and Cross",
     # "E-plane Co & Cross": "E",
     # "E-plane Co only": "ECO",
     # "E-plane Cross only": "ECROSS",
