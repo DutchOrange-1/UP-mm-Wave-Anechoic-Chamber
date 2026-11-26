@@ -18,7 +18,7 @@ Regarding the progression of this prject, please see [This Document on the progr
 # Installation of Program:
 Python, with the following packages. 
 ```
-python -m pip install PySide6 libximc pyvisa numpy pandas matplotlib pyqtgraph scikit-rf
+python -m pip install PySide6 libximc pyvisa numpy pandas matplotlib pyqtgraph scikit-rf pycaw comtypes
 ```
 
 # Brief workings of program

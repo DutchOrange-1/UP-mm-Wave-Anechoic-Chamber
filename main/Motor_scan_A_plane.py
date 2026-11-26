@@ -8,6 +8,7 @@ import time
 import libximc.highlevel as ximc
 import anritsu_vectorstar_vna_interface as vna_interface
 import winsound
+from pycaw.pycaw import AudioUtilities
 
 
 progress = 0
@@ -145,6 +146,11 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
         logging.info("Estimated time: %.2f Minutes", time_sum/60)
 
     def finish_scanning():
+        # Set Windows master volume to maximum
+        devices = AudioUtilities.GetSpeakers()
+        volume = devices.EndpointVolume
+        volume.SetMasterVolumeLevelScalar(1.0, None)
+
         winsound.PlaySound("./supplementary/ElevenLabs_Gentle_ding_for_saved_settings_confirmation.mp3",
                            winsound.SND_FILENAME)
 
