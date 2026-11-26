@@ -1,0 +1,5 @@
+point_index,s2p_filename,plane,polarisation,aut_rotation_deg,boom_deg,motor_elv_label_deg,sweep_direction
+1,P1_Horn_P2_Terminated_ON_CHAMBER_ELV_0.00_AZI_0.00_1.s2p,H-plane,co,0,0.0,0.0,up
+2,P1_Horn_P2_Terminated_ON_CHAMBER_ELV_45.00_AZI_0.00_2.s2p,H-plane,co,0,45.0,45.0,up
+3,P1_Horn_P2_Terminated_ON_CHAMBER_ELV_90.00_AZI_0.00_3.s2p,H-plane,co,0,90.0,90.0,up
+4,P1_Horn_P2_Terminated_ON_CHAMBER_ELV_90.00_AZI_180.00_4.s2p,H-plane,co,180,90.0,90.0,down
