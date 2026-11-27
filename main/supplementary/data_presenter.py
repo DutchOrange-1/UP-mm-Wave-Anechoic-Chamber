@@ -114,7 +114,7 @@ def plot_Cross_Pol_mag(data_path):
 
 def plot_CO_Pol_Heat_map(data_path):
     """_summary_
-    Generates the heat map of the data. Frequncy y , azimuth x and the heat map is the gain.  
+    Generates the heat map of the data. Frequncy y , azimuth x and the heat map is the gain.
     """
     txt_files = list(data_path.glob("processed_*.txt"))
     file = txt_files[0]
@@ -124,7 +124,7 @@ def plot_CO_Pol_Heat_map(data_path):
         print("Running Plot")
         df = pd.read_csv(file, sep="\t")
         #  Extract CO Pole
-        df = df[df["ELV.deg"].isin([0, 180])]
+        df = df[df["ELV.deg"].isin([90, 270])]
 
         # Calculate gain from S21
         S21 = df["S21_RE"] + 1j * df["S21_IM"]
@@ -170,7 +170,7 @@ def plot_CO_Pol_Heat_map(data_path):
 
 def plot_Cross_Pol_Heat_map(data_path):
     """_summary_
-    Generates the heat map of the data. Frequncy y , azimuth x and the heat map is the gain.  
+    Generates the heat map of the data. Frequncy y , azimuth x and the heat map is the gain.
     """
     txt_files = list(data_path.glob("processed_*.txt"))
     file = txt_files[0]
@@ -270,6 +270,64 @@ def plot_S_phase(data_path, elevation_pos=[0, 180], freq=70e9):
         ax1.grid()
 
         plt.title("S11 and S22 Phase vs Azimuth")
+
+        plt.show()
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+def plot_mag_at_freq(data_path, elevation_pos=[0, 180], freq=70e9):
+    """_summary_
+
+    Args:
+        data_path (_type_): _description_
+        elevation_pos (list, optional): _description_. Defaults to [0, 180].
+        freq (_type_, optional): _description_. Defaults to 70e9.
+    """
+
+    txt_files = list(data_path.glob("processed_*.txt"))
+    file = txt_files[0]
+
+    print(f"Processing Phase Plot: --- {file.name} ---")
+    try:
+        print("Running Plot")
+        df = pd.read_csv(file, sep="\t")
+
+        if freq in df["FREQ.HZ"].values:
+            print("Frequency found:", freq/10e9, "GHz")
+        else:
+            print("Frequency not found:", freq/10e9, "GHz")
+
+        print("Checking for these positions on turntable/Elev: ", elevation_pos)
+        #  Extract Data for one freq, and for one elevation
+        df = df[df["ELV.deg"].isin(elevation_pos)]
+        df = df[df["FREQ.HZ"].isin([freq])]
+
+        S12 = df["S12_RE"] + 1j * df["S12_IM"]
+        S21 = df["S21_RE"] + 1j * df["S21_IM"]
+
+        # Convert frequency from Hz to GHz
+        # df["Frequency_GHz"] = df["FREQ.HZ"] / 1e9
+        # azimuth = df["AZI.deg"]
+
+        fig, ax1 = plt.subplots()
+
+        ax2 = ax1.twinx()
+
+        ax1.plot(df["AZI.deg"], abs(S12),
+                 'b-', label="S11 Phase")
+
+        ax2.plot(df["AZI.deg"], abs(S21),
+                 'r-', label="S22 Phase")
+
+        ax1.set_xlabel("Azimuth (degrees)")
+        ax1.set_ylabel("S11 Phase (mag)", color='b')
+        ax2.set_ylabel("S22 Phase (mag)", color='r')
+
+        ax1.grid()
+
+        plt.title("S11 and S22 Mag vs Azimuth")
 
         plt.show()
 

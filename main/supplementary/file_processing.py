@@ -11,6 +11,8 @@ def compress_data(project_name, project_base_path):
     Outputs the compressed file, and returns the data path of where it is. 
     """
     print(f"Compressing: {project_name} CO POL")
+    print(Path.cwd())
+
     project_base_path = Path(project_base_path)
     file_list, data_path = _get_files_path(project_name, project_base_path)
     # print(data_path)
@@ -178,9 +180,9 @@ def _extract_azimuth_points(file_path):
 
 def _get_files_path(project_name, project_base_path):
     from pathlib import Path
+
     file_list = []
 
-    # search_path = Path(__file__).parent.parent
     search_path = Path(project_base_path)
 
     data_paths = list(search_path.glob(f"*{project_name}*/s2p_data"))
@@ -190,17 +192,17 @@ def _get_files_path(project_name, project_base_path):
         data_paths.sort()
         data_path = data_paths[-1]
 
-        print(data_path)
+        print("Data path:", data_path.resolve())
 
         for file in data_path.iterdir():
-            file_name = str(file).split("\\")[-1]
-            # print(file_name)
+            file_name = file.name
             file_list.append(file_name)
+
         return file_list, data_path
 
     else:
         print("No matching project directories found.")
-
+        return [], None
 
 # # Create azimuth and elevation columns
 # azi_array = np.full(len(freq), azi)

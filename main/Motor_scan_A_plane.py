@@ -151,12 +151,12 @@ def planer_scan(azimuth_points=3, type='CO', wobble_time_azimuth=0.5, wobble_pol
         # volume = devices.EndpointVolume
         # volume.SetMasterVolumeLevelScalar(1.0, None)
 
-        winsound.PlaySound("./supplementary/ElevenLabs_Gentle_ding_for_saved_settings_confirmation.mp3",
-                           winsound.SND_FILENAME)
+        # winsound.PlaySound("./supplementary/ElevenLabs_Gentle_ding_for_saved_settings_confirmation.mp3",
+        #                    winsound.SND_FILENAME)
         winsound.PlaySound("./supplementary/bubbling2.wav",
                            winsound.SND_FILENAME)
-        winsound.PlaySound("./supplementary/car_crash.wav",
-                           winsound.SND_FILENAME)
+        # winsound.PlaySound("./supplementary/car_crash.wav",
+        #                    winsound.SND_FILENAME)
 
     def scan_AUT_CO_CROSS(azimuth_points=9, pos1=0, pos2=180, pos3=0, pos4=0):
         """
