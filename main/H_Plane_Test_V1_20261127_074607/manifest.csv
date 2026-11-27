@@ -1,0 +1,4 @@
+point_index,s2p_filename,plane,polarisation,aut_rotation_deg,boom_deg,motor_elv_label_deg,sweep_direction
+1,H_Plane_Test_V1_ELV_0.00_AZI_90.00_1.s2p,Manual,co,90,0.0,0.0,up
+2,H_Plane_Test_V1_ELV_4.74_AZI_90.00_2.s2p,Manual,co,90,4.7368,4.7368,up
+3,H_Plane_Test_V1_ELV_9.47_AZI_90.00_3.s2p,Manual,co,90,9.4737,9.4737,up

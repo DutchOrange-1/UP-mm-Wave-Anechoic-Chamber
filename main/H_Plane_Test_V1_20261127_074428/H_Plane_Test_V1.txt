@@ -1,0 +1,11 @@
+Run started: 2026-11-27T07:44:28
+Scan type: CROSS
+Frequency: 50.000-100.000 GHz, 601 points, IF bandwidth 500 Hz
+VNA averaging: ON (4, point-by-point)
+Azimuth points per 90-degree pass: 9
+Sleep time (wobble_time_azimuth): 1.00 s
+Expected total samples: 18
+Azimuth COM port: COM13 (sent as com2)
+Elevation COM port: COM12 (sent as com1)
+Project name: H_Plane_Test_V1 (start of every .s2p file name)
+Output folder: C:\Users\bdegr\Documents\SyncedDrives\UP-mm-Wave-Anechoic-Chamber\main\H_Plane_Test_V1_20261127_074428 (Uncompressed in s2p_data subfolder)

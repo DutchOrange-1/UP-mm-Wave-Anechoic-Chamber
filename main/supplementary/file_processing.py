@@ -4,14 +4,15 @@ import pandas as pd
 from pathlib import Path
 
 
-def compress_data(project_name):
+def compress_data(project_name, project_base_path):
     """_summary_
     project_name: What project data to extract
 
     Outputs the compressed file, and returns the data path of where it is. 
     """
     print(f"Compressing: {project_name} CO POL")
-    file_list, data_path = _get_files_path(project_name)
+    project_base_path = Path(project_base_path)
+    file_list, data_path = _get_files_path(project_name, project_base_path)
     # print(data_path)
 
     # Extract the data needed from the manifest.
@@ -175,11 +176,12 @@ def _extract_azimuth_points(file_path):
     return int(match.group(1)) if match else None
 
 
-def _get_files_path(project_name):
+def _get_files_path(project_name, project_base_path):
     from pathlib import Path
     file_list = []
 
-    search_path = Path(__file__).parent.parent
+    # search_path = Path(__file__).parent.parent
+    search_path = Path(project_base_path)
 
     data_paths = list(search_path.glob(f"*{project_name}*/s2p_data"))
 
